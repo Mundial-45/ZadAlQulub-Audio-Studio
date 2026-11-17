@@ -304,5 +304,16 @@
  "rec.silenceStop": "Enregistrement arrêté après un long silence.",
  "rec.optionsTitle": "Options avancées de l’enregistreur",
  "rec.reopen": "Les changements de micro, fréquence ou filtres du navigateur s’appliquent à la réactivation du micro.",
- "rec.lastTake": "Répéter (jeter et réenregistrer)"
+ "rec.lastTake": "Répéter (jeter et réenregistrer)",
+ "studio.textToggle": "Agrandir ou réduire le texte",
+ "studio.recSettings": "Réglages de l’enregistreur",
+ "studio.voiceSettings": "Réglages de la voix",
+ "ab.orig": "Original",
+ "ab.fx": "Avec effets",
+ "fx.test": "Essayer",
+ "fx.auto": "Essayer automatiquement à chaque réglage",
+ "exp.options": "Options du MP3",
+ "g.pitch": "Changement de hauteur (pitch)",
+ "p.pitch": "Changer la hauteur de la voix",
+ "p.semitones": "Demi-tons (+ monte, − descend)"
 }

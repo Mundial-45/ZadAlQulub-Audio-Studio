@@ -74,3 +74,44 @@ code.url{display:block;direction:ltr;word-break:break-all;background:var(--track
 .pgroup .check{font-weight:600;grid-column:1/-1;margin-top:12px}
 .profilebox{grid-column:1/-1}
 @media (max-width:520px){.top{gap:4px;padding-inline:8px}.top-actions{gap:4px;flex-shrink:0}.icon-btn{width:38px;height:38px;font-size:.95rem}.brand h1{font-size:.85rem;line-height:1.15}.brand img{width:30px;height:30px}.top-actions select{max-width:88px;min-height:38px;padding:4px 6px}}
+
+/* ---------- estudio estilo grabadora de voz ---------- */
+.grow{flex:1;min-width:0}.btn.small{min-height:40px;padding:6px 12px;font-size:.9rem}
+.studio-head{margin-bottom:6px;flex-wrap:nowrap}
+.textcard{max-height:26vh;overflow:auto;padding:8px 12px;margin:6px 0}
+.textcard.open{max-height:72vh}
+.textcard .ar{font-size:var(--app-font-size,18px)}
+.recorder{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:8px 0;text-align:center}
+.recorder canvas.wave.small{height:56px;margin:0}
+.recorder .timer{font-size:2.1rem;margin:4px 0}
+.recorder canvas.meter{height:12px;border-radius:6px}
+.recorder .warn{min-height:1.2em;margin:4px 0}
+.rec-controls{display:flex;justify-content:center;align-items:center;gap:14px;margin:6px 0}
+.round{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:1.25rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.round:disabled{opacity:.35;cursor:default}
+.round.rec-main{width:76px;height:76px;border:4px solid var(--line);background:var(--card)}
+.rec-main .dot{width:40px;height:40px;border-radius:50%;background:var(--rec,#d23a3f);display:block;transition:all .15s}
+.is-rec .rec-main .dot{border-radius:8px;width:28px;height:28px;animation:pulse 1.1s infinite}
+.is-paused .rec-main .dot{opacity:.5}
+@keyframes pulse{50%{opacity:.55}}
+.player{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin:8px 0}
+.player canvas.wave{height:120px}
+.transport{display:flex;align-items:center;gap:10px;margin:10px 0;flex-wrap:wrap}
+.round.play{width:60px;height:60px;background:var(--primary);color:var(--primary-text);border-color:var(--primary);font-size:1.5rem}
+.ptime{font:600 .95rem ui-monospace,Menlo,Consolas,monospace;direction:ltr;color:var(--muted)}
+.seg{margin-inline-start:auto;display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg label{display:block;cursor:pointer}.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:10px 12px;font-weight:600;font-size:.9rem;min-height:40px}
+.seg input:checked+span{background:var(--primary);color:var(--primary-text)}
+.voicebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.voicebar select{flex:1 1 150px;min-width:0}
+.tools{display:flex;gap:6px;overflow-x:auto;padding:6px 0;margin:6px 0;scrollbar-width:thin}
+.tool{flex:0 0 auto;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:1.1rem;cursor:pointer}
+.tool:disabled{opacity:.35}.tool.danger{color:var(--danger)}
+dialog.sheet{width:100%;max-width:640px;margin:auto auto 0;padding:0;border-radius:18px 18px 0 0;max-height:88vh;overflow:hidden;flex-direction:column}
+dialog.sheet[open]{display:flex}
+dialog.sheet::backdrop{background:rgba(0,0,0,.45)}
+.sheet-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--card)}
+.sheet-head strong{flex:1}.sheet-head select{flex:1;min-width:0}
+.sheet-auto{padding:6px 14px;margin:0;border-bottom:1px solid var(--line)}
+.sheet-body{overflow:auto;padding:8px 14px 18px;-webkit-overflow-scrolling:touch}
+@media (min-width:700px){dialog.sheet{margin:auto;border-radius:18px}}

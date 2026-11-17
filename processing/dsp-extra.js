@@ -274,3 +274,54 @@ export function trimSilence(pcm, sr, { margin = 0.2, extraDb = 10 } = {}) {
   for (let i = 0; i < f; i++) { out[i] *= i / f; out[out.length - 1 - i] *= i / f; }
   return out;
 }
+
+// ---------------------------------------------------------------- cambio de tono (pitch) manteniendo la duración
+// WSOLA (estiramiento sin cambiar el tono) + remuestreo. semitones > 0 sube el tono, < 0 lo baja.
+function wsola(pcm, ratio) {
+  const N = 2048, Hs = 512, W = 480, DEC = 4, n = pcm.length;
+  const Ha = Hs / ratio, outLen = Math.round(n * ratio), out = new Float32Array(outLen + N), norm = new Float32Array(outLen + N);
+  const win = hann(N);
+  // versión diezmada para buscar el mejor desfase de forma barata
+  const dn = Math.floor(n / DEC), dec = new Float32Array(dn);
+  for (let i = 0; i < dn; i++) { let s = 0; for (let k = 0; k < DEC; k++) s += pcm[i * DEC + k]; dec[i] = s / DEC; }
+  const Nc = N / DEC, Wc = W / DEC;
+  let prevPos = 0, first = true;
+  for (let o = 0, k = 0; o < outLen; o += Hs, k++) {
+    let pos = Math.round(k * Ha);
+    if (!first) {
+      const natC = Math.round((prevPos + Hs) / DEC);            // continuación natural del tramo anterior
+      const c0 = Math.round(pos / DEC);
+      let best = 0, bestScore = -Infinity;
+      for (let d = -Wc; d <= Wc; d++) {
+        const a = c0 + d; if (a < 0 || a + Nc > dn || natC + Nc > dn) continue;
+        let sc = 0; for (let i = 0; i < Nc; i += 2) sc += dec[a + i] * dec[natC + i];
+        if (sc > bestScore) { bestScore = sc; best = d; }
+      }
+      pos += best * DEC;
+    }
+    first = false;
+    pos = Math.max(0, Math.min(n - 1, pos)); prevPos = pos;
+    for (let i = 0; i < N; i++) { const v = pos + i < n ? pcm[pos + i] : 0; out[o + i] += v * win[i]; norm[o + i] += win[i]; }
+  }
+  const y = new Float32Array(outLen);
+  for (let i = 0; i < outLen; i++) y[i] = norm[i] > 1e-4 ? out[i] / norm[i] : 0;
+  return y;
+}
+function resampleCubic(x, step, outLen) {       // lee x a "step" muestras por salida (Catmull-Rom)
+  const y = new Float32Array(outLen), n = x.length;
+  for (let i = 0; i < outLen; i++) {
+    const p = i * step, i1 = Math.floor(p), t = p - i1;
+    const a = x[Math.max(0, i1 - 1)], b = x[Math.min(n - 1, i1)], c = x[Math.min(n - 1, i1 + 1)], d = x[Math.min(n - 1, i1 + 2)];
+    y[i] = b + 0.5 * t * (c - a + t * (2 * a - 5 * b + 4 * c - d + t * (3 * (b - c) + d - a)));
+  }
+  return y;
+}
+export function pitchShift(pcm, sr, semitones) {
+  const n = pcm.length, st = Math.max(-12, Math.min(12, semitones || 0));
+  if (!n || Math.abs(st) < 0.01) return pcm;
+  const f = Math.pow(2, st / 12);
+  let x = wsola(pcm, f);                          // longitud n·f, mismo tono
+  if (f > 1) { const c = sr / (2 * f) * 0.9; x = lowpass(lowpass(x, sr, c), sr, c); }   // evita solapamiento al leer más rápido
+  return resampleCubic(x, f, n);                  // lee a velocidad f: sube el tono y devuelve la duración original
+}
+const lowpass = (x, sr, f, Q = 0.707) => { const w = 2 * Math.PI * f / sr, al = Math.sin(w) / (2 * Q), c = Math.cos(w); return biq(x, (1 - c) / 2, 1 - c, (1 - c) / 2, 1 + al, -2 * c, 1 - al); };

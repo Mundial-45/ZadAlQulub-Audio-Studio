@@ -143,8 +143,8 @@ const val = (id) => parseFloat($(id).value);
 // --- panel de procesado generado desde processing/controls.js
 function buildProcPanel() {
   const root = $('procControls'); root.textContent = '';
-  const sel = $('profileSelect'); sel.textContent = '';
-  PROFILE_ORDER.forEach((k) => { const o = document.createElement('option'); o.value = k; o.dataset.i18n = 'proc.' + k; sel.appendChild(o); });
+  const sels = [$('profileSelect'), $('profileSelect2')];
+  for (const sel of sels) { sel.textContent = ''; PROFILE_ORDER.forEach((k) => { const o = document.createElement('option'); o.value = k; o.dataset.i18n = 'proc.' + k; sel.appendChild(o); }); }
   for (const g of GROUPS) {
     const det = document.createElement('details'); det.className = 'pgroup'; det.open = !!g.open;
     const sm = document.createElement('summary'); sm.dataset.i18n = 'g.' + g.id; det.appendChild(sm);
@@ -164,7 +164,7 @@ function buildProcPanel() {
     }
     root.appendChild(det);
   }
-  applyI18n(root); applyI18n(sel);
+  applyI18n(root); sels.forEach(applyI18n);
 }
 function eachControl(fn) { for (const g of GROUPS) for (const c of g.controls) if (c.path) fn(c, $(c.id)); }
 function paramsToControls(p) {
@@ -216,8 +216,11 @@ async function closeStudio() {
 function setRecUi(state) {
   const open = state !== 'closed';
   $('micBtn').textContent = t(open ? 'rec.disable' : 'rec.enable');
-  $('recBtn').disabled = state !== 'ready'; $('pauseBtn').disabled = !(state === 'recording' || state === 'paused');
-  $('pauseBtn').textContent = t(state === 'paused' ? 'rec.resume' : 'rec.pause'); $('stopBtn').disabled = !(state === 'recording' || state === 'paused');
+  $('recBtn').disabled = !(state === 'closed' || state === 'ready'); $('pauseBtn').disabled = !(state === 'recording' || state === 'paused');
+  $('pauseBtn').textContent = state === 'paused' ? '▶' : '⏸'; $('pauseBtn').title = t(state === 'paused' ? 'rec.resume' : 'rec.pause');
+  $('recBtn').title = t('rec.start'); $('stopBtn').title = t('rec.stop'); $('stopBtn2').title = t('rec.stop');
+  $('stopBtn').disabled = !(state === 'recording' || state === 'paused');
+  $('recPanel').classList.toggle('is-rec', state === 'recording'); $('recPanel').classList.toggle('is-paused', state === 'paused');
   $('deviceSelect').hidden = !open || lastDevices.length < 2;
   $('calibBtn').disabled = state !== 'ready'; if (state !== 'ready') armed = false;
 }
@@ -239,6 +242,7 @@ let counting = false;
 async function startRecording() {
   if (armed) { armed = false; $('recWarn').textContent = ''; return; }
   if (counting) return;
+  if (recorder.state === 'closed') { await toggleMic(); if (recorder.state !== 'ready') return; }
   live.clear(); $('recWarn').textContent = '';
   if ($('countdownCheck').checked) {
     counting = true;
@@ -270,7 +274,7 @@ function loadOriginal(pcm, sr, fromDraft) {
   S.original = { pcm, sr }; S.processed = null; S.mp3 = null;
   $('editBody').hidden = false; $('editEmpty').hidden = true;
   editor.setAudio(pcm.slice(), sr); updateEditInfo();
-  $('mp3Btn').disabled = false; $('playProcBtn').disabled = true; $('procStats').textContent = '';
+  $('mp3Btn').disabled = false; $('procStats').textContent = ''; S.fxKey = null; setPlayUi(false); updateTime(0);
   $('recSaved').textContent = fromDraft ? '' : t('rec.saved');
 }
 function updateEditInfo() { $('editInfo').textContent = fmtTime(editor.duration) + ' · ' + editor.sr + ' Hz · mono' + (S.processed && S.processedSource !== editor.pcm ? ' · ' + t('proc.stale') : ''); }
@@ -284,24 +288,55 @@ async function stopRecording() {
   S.statuses = await store.loadStatuses();
 }
 
+// --- reproductor: play/pausa/stop, A/B y prueba de voz
+const abMode = () => (document.querySelector('input[name=abMode]:checked') || {}).value || 'orig';
+const fxFresh = () => !!(S.processed && S.processedSource === editor.pcm && S.fxKey === JSON.stringify(controlsToParams()));
+function setPlayUi(on) { const b = $('playBtn'); b.textContent = on ? '⏸' : '▶'; b.title = t(on ? 'edit.pause' : 'edit.play'); b.setAttribute('aria-label', b.title); }
+const mmss = (s) => { s = Math.max(0, s || 0); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+function updateTime(sec) { $('playTime').textContent = mmss(sec) + ' / ' + mmss(editor.duration); }
+async function playFrom(sec) {
+  let pcm = editor.pcm, sr = editor.sr;
+  if (abMode() === 'fx') {
+    const r = fxFresh() ? S.processed : await runProcessing(); if (!r) return;
+    pcm = r.pcm; sr = r.sampleRate;
+  }
+  const dur = pcm.length / sr; if (sec >= dur - 0.05) sec = 0;
+  previewer.play(pcm, sr, sec); setPlayUi(true);
+}
+async function togglePlay() {
+  if (previewer.playing) { previewer.stop(); setPlayUi(false); return; }
+  const sel = editor.selection; await playFrom(sel ? sel.start / editor.sr : editor.playhead / editor.sr);
+  if (editor.selection && abMode() === 'orig') previewer.end = editor.selection.end / editor.sr;
+}
+function stopPlay() { previewer.stop(); setPlayUi(false); const sel = editor.selection; editor.setPlayhead(sel ? sel.start : 0); updateTime(sel ? sel.start / editor.sr : 0); }
+async function onAbChange() { if (previewer.playing) { const pos = previewer.position(); previewer.stop(); await playFrom(pos); } }
+async function testVoice() {
+  if (!S.original) return;
+  const fx = document.querySelector('input[name=abMode][value=fx]'); if (!fx.checked) fx.checked = true;
+  previewer.stop(); const sel = editor.selection;
+  await playFrom(sel ? sel.start / editor.sr : 0);
+}
+let autoTimer = null;
+function scheduleAutoTest() { if (!$('autoTestCheck').checked || !S.original || !$('voiceDialog').open) return; clearTimeout(autoTimer); autoTimer = setTimeout(testVoice, 800); }
+
 async function runProcessing() {
   if (!S.original) return null;
-  const params = controlsToParams(); $('procBtn').disabled = true; $('mp3Btn').disabled = true;
+  const params = controlsToParams(); $('testBtn').disabled = $('testBtn2').disabled = true; $('mp3Btn').disabled = true;
   const src = editor.pcm;
   try {
     const r = await processAudio(src, editor.sr, params, (stage, p) => { $('procStatus').textContent = t('proc.running', { stage: t('proc.stage.' + stage) || stage }); });
-    S.processed = r; S.processedSource = src; S.params = params; S.mp3 = null;
+    S.processed = r; S.processedSource = src; S.params = params; S.fxKey = JSON.stringify(params); S.mp3 = null;
     const s = r.stats, f = (v) => (isFinite(v) ? v.toFixed(1) : '—');
     $('procStats').textContent = t('proc.stats', { lb: f(s.lufsBefore), tb: f(s.tpBefore), la: f(s.lufsAfter), ta: f(s.tpAfter) });
     let msg = ''; if (r.noise && !r.noise.ok) msg += t('proc.noRnnoise') + ' ';
     if (s.limiterReductionDb > 3) msg += t('proc.limiterWarn', { db: s.limiterReductionDb.toFixed(1) });
-    $('procStatus').textContent = msg; $('playProcBtn').disabled = false;
+    $('procStatus').textContent = msg;
     return r;
   } catch (e) { $('procStatus').textContent = String(e.message || e); return null; }
-  finally { $('procBtn').disabled = false; $('mp3Btn').disabled = false; updateEditInfo(); }
+  finally { $('testBtn').disabled = $('testBtn2').disabled = false; $('mp3Btn').disabled = false; updateEditInfo(); }
 }
 async function makeMp3() {
-  let r = S.processed && S.processedSource === editor.pcm ? S.processed : await runProcessing();
+  let r = fxFresh() ? S.processed : await runProcessing();
   if (!r) return;
   $('mp3Btn').disabled = true; $('mp3Status').textContent = t('exp.working');
   try {
@@ -368,9 +403,11 @@ function bind() {
   });
 
   const play = (pcm, sr, from) => { previewer.play(pcm, sr, from || 0); };
-  $('playBtn').onclick = () => { if (previewer.playing) previewer.stop(); else { const sel = editor.selection; play(editor.pcm, editor.sr, sel ? sel.start / editor.sr : editor.playhead / editor.sr); if (sel) previewer.end = sel.end / editor.sr; } };
-  $('stopPlayBtn').onclick = () => previewer.stop();
-  previewer.addEventListener('tick', (e) => editor.setPlayhead(e.detail.seconds));
+  $('playBtn').onclick = togglePlay; $('stopPlayBtn').onclick = stopPlay; $('stopBtn2').onclick = stopPlay;
+  $('testBtn').onclick = testVoice; $('testBtn2').onclick = testVoice;
+  document.querySelectorAll('input[name=abMode]').forEach((r) => { r.onchange = onAbChange; });
+  previewer.addEventListener('ended', () => { setPlayUi(false); const sel = editor.selection; editor.setPlayhead(sel ? sel.start : 0); updateTime(0); });
+  previewer.addEventListener('tick', (e) => { editor.setPlayhead(e.detail.seconds); updateTime(e.detail.seconds); });
   $('volRange').oninput = (e) => previewer.setVolume(parseFloat(e.target.value));
   $('zoomInBtn').onclick = () => editor.zoom(0.5); $('zoomOutBtn').onclick = () => editor.zoom(2); $('fitBtn').onclick = () => editor.zoomFit();
   $('trimBtn').onclick = () => editor.trimToSelection(); $('deleteBtn').onclick = () => editor.deleteSelection(); $('silenceBtn').onclick = () => editor.silenceSelection();
@@ -379,15 +416,17 @@ function bind() {
   $('restoreBtn').onclick = () => { if (S.original) editor.resetTo(S.original.pcm); };
   $('discardBtn').onclick = async () => { if (!confirm(t('common.confirmDiscard'))) return; previewer.stop(); await store.removeRecord(S.item); S.original = null; S.processed = null; $('editBody').hidden = true; $('editEmpty').hidden = false; $('mp3Btn').disabled = true; S.statuses = await store.loadStatuses(); };
   editor.addEventListener('change', (e) => { $('undoBtn').disabled = !e.detail.canUndo; $('redoBtn').disabled = !e.detail.canRedo; const sel = e.detail.selection; ['trimBtn', 'deleteBtn', 'silenceBtn'].forEach((b) => { $(b).disabled = !sel; }); updateEditInfo(); });
-  editor.addEventListener('seek', () => previewer.stop());
+  editor.addEventListener('seek', () => { previewer.stop(); setPlayUi(false); });
 
-  $('profileSelect').onchange = (e) => paramsToControls(PROFILES[e.target.value]());
+  const onProfile = (e) => { $('profileSelect').value = $('profileSelect2').value = e.target.value; paramsToControls(PROFILES[e.target.value]()); scheduleAutoTest(); };
+  $('profileSelect').onchange = onProfile; $('profileSelect2').onchange = onProfile;
   buildProcPanel();
-  $('procControls').addEventListener('input', refreshOutputs);
+  $('procControls').addEventListener('input', () => { refreshOutputs(); scheduleAutoTest(); });
   $('procControls').addEventListener('click', (e) => { if (e.target.id === 'profCapture') captureNoiseProfile(); else if (e.target.id === 'profClear') clearNoiseProfile(); });
-  $('procBtn').onclick = runProcessing;
-  $('playEditedBtn').onclick = () => { previewer.stop(); play(editor.pcm, editor.sr, 0); };
-  $('playProcBtn').onclick = () => { if (S.processed) { previewer.stop(); previewer.play(S.processed.pcm, S.processed.sampleRate, 0); } };
+  // hojas inferiores (ajustes del grabador y de la voz)
+  const sheet = (dlg, openBtns, closeBtn) => { openBtns.forEach((b) => { b.onclick = () => dlg.showModal(); }); $(closeBtn).onclick = () => dlg.close(); dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); }); };
+  sheet($('recDialog'), [$('recSettingsBtn')], 'recDialogClose'); sheet($('voiceDialog'), [$('voiceBtn'), $('voiceBtn2')], 'voiceDialogClose');
+  $('textToggle').onclick = () => $('studioText').classList.toggle('open');
   $('mp3Btn').onclick = makeMp3; $('saveBtn').onclick = saveDone; $('submitBtn').onclick = submitForReview;
 
   $('loginForm').onsubmit = async (e) => {

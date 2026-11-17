@@ -22,6 +22,7 @@ export const base = () => ({
   saturation: { enabled: false, drive: 0.3, mix: 0.4 },
   chorus: { enabled: false, depth: 0.4, rate: 0.8, mix: 0.3 },
   effect: { type: 'none', mix: 0.25, tone: 9000, size: 1, predelay: 0 },
+  pitch: { enabled: false, semitones: 0 },
   // --- salida ---
   trim: { enabled: false, margin: 0.2 },
   loudness: { enabled: true, target: -16 },

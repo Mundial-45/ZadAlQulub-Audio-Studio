@@ -64,101 +64,79 @@
 
 <main id="studioView" hidden>
   <div class="studio-head">
-    <button id="backBtn" class="btn" data-i18n="studio.back"></button>
-    <div><span id="studioId" class="badge"></span> <span id="studioGroup" class="muted"></span></div>
+    <button id="backBtn" class="btn small" data-i18n="studio.back"></button>
+    <div class="grow"><span id="studioId" class="badge"></span> <span id="studioGroup" class="muted small"></span></div>
+    <button id="textToggle" class="icon-btn" type="button" data-i18n-title="studio.textToggle" title="Texto">⤢</button>
   </div>
-  <article id="studioText" class="card"></article>
+  <article id="studioText" class="card textcard"></article>
 
-  <section class="panel" id="recPanel">
-    <h2 data-i18n="studio.step1"></h2>
-    <div class="row">
-      <button id="micBtn" class="btn primary" data-i18n="rec.enable"></button>
-      <select id="deviceSelect" data-i18n-title="rec.device" title="Micrófono" hidden></select>
-    </div>
-    <p id="recInfo" class="muted"></p>
-    <label class="field"><span data-i18n="rec.gain"></span><input id="gainRange" type="range" min="0.25" max="3" step="0.05" value="1"><output id="gainOut">1.0×</output></label>
-    <label class="check"><input id="nsCheck" type="checkbox"><span data-i18n="rec.ns"></span></label>
-    <label class="check"><input id="monitorCheck" type="checkbox"><span data-i18n="rec.monitor"></span></label>
-    <p id="monitorWarn" class="warn" hidden data-i18n="rec.monitorWarn"></p>
-    <details class="pgroup recopts"><summary data-i18n="rec.optionsTitle"></summary><div class="grid2">
-      <label class="field"><span data-i18n="rec.sr"></span><select id="srSelect"><option value="48000">48000 Hz</option><option value="44100">44100 Hz</option></select></label>
-      <label class="check"><input id="hpfLiveCheck" type="checkbox"><span data-i18n="rec.hpfLive"></span></label>
-      <label class="check"><input id="ecCheck" type="checkbox"><span data-i18n="rec.echoCancel"></span></label>
-      <label class="check"><input id="agcCheck" type="checkbox"><span data-i18n="rec.agc"></span></label>
-      <label class="check"><input id="countdownCheck" type="checkbox"><span data-i18n="rec.countdown"></span></label>
-      <label class="check"><input id="autoStartCheck" type="checkbox"><span data-i18n="rec.autoStart"></span></label>
-      <label class="check"><input id="autoStopCheck" type="checkbox"><span data-i18n="rec.autoStop"></span></label>
-      <div class="field"><button type="button" id="calibBtn" class="btn" disabled data-i18n="rec.calib"></button><p id="calibOut" class="muted small"></p></div>
-    </div><p class="muted small" data-i18n="rec.reopen"></p></details>
-    <div class="meter-label muted" data-i18n="rec.level"></div>
-    <canvas id="meter" class="meter" height="26"></canvas>
+  <section class="recorder" id="recPanel">
     <canvas id="liveWave" class="wave small"></canvas>
     <div id="timer" class="timer">00:00.0</div>
+    <canvas id="meter" class="meter" height="14"></canvas>
     <p id="recWarn" class="warn" aria-live="polite"></p>
-    <div class="row big">
-      <button id="recBtn" class="btn rec" disabled data-i18n="rec.start"></button>
-      <button id="pauseBtn" class="btn" disabled data-i18n="rec.pause"></button>
-      <button id="stopBtn" class="btn" disabled data-i18n="rec.stop"></button>
+    <div class="rec-controls">
+      <button id="recSettingsBtn" class="round" type="button" data-i18n-title="studio.recSettings" title="Ajustes">⚙</button>
+      <button id="stopBtn" class="round" type="button" disabled>⏹</button>
+      <button id="recBtn" class="round rec-main" type="button"><span class="dot"></span></button>
+      <button id="pauseBtn" class="round" type="button" disabled>⏸</button>
+      <button id="voiceBtn2" class="round" type="button" data-i18n-title="studio.voiceSettings" title="Voz">🎛</button>
     </div>
+    <p id="recInfo" class="muted small"></p>
     <p id="recSaved" class="ok"></p>
   </section>
 
-  <section class="panel" id="editPanel">
-    <h2 data-i18n="studio.step2"></h2>
+  <section class="player" id="editPanel">
     <p id="editEmpty" class="muted" data-i18n="edit.empty"></p>
     <div id="editBody" hidden>
       <canvas id="editWave" class="wave"></canvas>
+      <div class="transport">
+        <button id="playBtn" class="round play" type="button" data-i18n-title="edit.play" title="Reproducir">▶</button>
+        <button id="stopPlayBtn" class="round" type="button" data-i18n-title="edit.stop" title="Parar">⏹</button>
+        <span id="playTime" class="ptime">00:00 / 00:00</span>
+        <div class="seg" role="radiogroup" aria-label="A/B">
+          <label><input type="radio" name="abMode" value="orig" checked><span data-i18n="ab.orig"></span></label>
+          <label><input type="radio" name="abMode" value="fx"><span data-i18n="ab.fx"></span></label>
+        </div>
+      </div>
+      <div class="voicebar">
+        <select id="profileSelect"></select>
+        <button id="testBtn" class="btn primary small" type="button">▶ <span data-i18n="fx.test"></span></button>
+        <button id="voiceBtn" class="btn small" type="button">🎛 <span data-i18n="studio.voiceSettings"></span></button>
+      </div>
+      <p id="procStatus" class="muted small" aria-live="polite"></p>
+      <div class="tools" role="toolbar">
+        <button id="trimBtn" class="tool" type="button" data-i18n-title="edit.trim" title="Recortar">✂</button>
+        <button id="deleteBtn" class="tool" type="button" data-i18n-title="edit.delete" title="Eliminar">🗑</button>
+        <button id="silenceBtn" class="tool" type="button" data-i18n-title="edit.silence" title="Silenciar">🔇</button>
+        <button id="fadeInBtn" class="tool" type="button" data-i18n-title="edit.fadeIn" title="Fundido de entrada">◢</button>
+        <button id="fadeOutBtn" class="tool" type="button" data-i18n-title="edit.fadeOut" title="Fundido de salida">◣</button>
+        <button id="undoBtn" class="tool" type="button" data-i18n-title="edit.undo" title="Deshacer">↶</button>
+        <button id="redoBtn" class="tool" type="button" data-i18n-title="edit.redo" title="Rehacer">↷</button>
+        <button id="restoreBtn" class="tool" type="button" data-i18n-title="edit.restore" title="Restaurar original">⟲</button>
+        <button id="zoomInBtn" class="tool" type="button" data-i18n-title="edit.zoomIn" title="Acercar">＋</button>
+        <button id="zoomOutBtn" class="tool" type="button" data-i18n-title="edit.zoomOut" title="Alejar">－</button>
+        <button id="fitBtn" class="tool" type="button" data-i18n-title="edit.fit" title="Ver todo">⤢</button>
+        <button id="discardBtn" class="tool danger" type="button" data-i18n-title="rec.discard" title="Descartar">✕</button>
+      </div>
       <p class="muted small" data-i18n="edit.hint"></p>
-      <div class="row wrap">
-        <button id="playBtn" class="btn primary" data-i18n="edit.play"></button>
-        <button id="stopPlayBtn" class="btn" data-i18n="edit.stop"></button>
-        <button id="zoomInBtn" class="btn" data-i18n="edit.zoomIn"></button>
-        <button id="zoomOutBtn" class="btn" data-i18n="edit.zoomOut"></button>
-        <button id="fitBtn" class="btn" data-i18n="edit.fit"></button>
-      </div>
-      <div class="row wrap">
-        <button id="trimBtn" class="btn" data-i18n="edit.trim"></button>
-        <button id="deleteBtn" class="btn" data-i18n="edit.delete"></button>
-        <button id="silenceBtn" class="btn" data-i18n="edit.silence"></button>
-        <button id="fadeInBtn" class="btn" data-i18n="edit.fadeIn"></button>
-        <button id="fadeOutBtn" class="btn" data-i18n="edit.fadeOut"></button>
-      </div>
-      <div class="row wrap">
-        <button id="undoBtn" class="btn" data-i18n="edit.undo"></button>
-        <button id="redoBtn" class="btn" data-i18n="edit.redo"></button>
-        <button id="restoreBtn" class="btn" data-i18n="edit.restore"></button>
-        <button id="discardBtn" class="btn danger" data-i18n="rec.discard"></button>
-      </div>
       <label class="field"><span data-i18n="edit.volume"></span><input id="volRange" type="range" min="0" max="1" step="0.05" value="1"></label>
-      <div id="editInfo" class="muted"></div>
-
-      <h3 data-i18n="proc.title"></h3>
-      <label class="field"><span data-i18n="proc.profile"></span>
-        <select id="profileSelect"></select></label>
-      <div id="procControls"></div>
-      <div class="row wrap">
-        <button id="procBtn" class="btn primary" data-i18n="proc.run"></button>
-        <span class="muted" data-i18n="edit.listen"></span>
-        <button id="playEditedBtn" class="btn" data-i18n="edit.listenEdited"></button>
-        <button id="playProcBtn" class="btn" disabled data-i18n="edit.listenProcessed"></button>
-      </div>
-      <p id="procStatus" class="muted" aria-live="polite"></p>
+      <div id="editInfo" class="muted small"></div>
       <p id="procStats" class="stats"></p>
     </div>
   </section>
 
   <section class="panel" id="expPanel">
-    <h2 data-i18n="studio.step3"></h2>
-    <div class="grid2">
-      <label class="field"><span data-i18n="exp.bitrate"></span><select id="kbps"><option>128</option><option>160</option><option selected>192</option><option>256</option></select></label>
-      <label class="field"><span data-i18n="exp.rate"></span><select id="mp3Rate"><option value="44100" selected>44,1 kHz</option><option value="48000">48 kHz</option></select></label>
-    </div>
     <div class="row wrap">
       <button id="mp3Btn" class="btn primary" disabled data-i18n="exp.make"></button>
       <a id="downloadLink" class="btn" hidden download data-i18n="exp.download"></a>
       <button id="saveBtn" class="btn" hidden data-i18n="exp.save"></button>
       <button id="submitBtn" class="btn primary" hidden data-i18n="exp.submit"></button>
     </div>
+    <details class="small"><summary data-i18n="exp.options"></summary><div class="grid2">
+      <label class="field"><span data-i18n="exp.bitrate"></span><select id="kbps"><option>128</option><option>160</option><option selected>192</option><option>256</option></select></label>
+      <label class="field"><span data-i18n="exp.rate"></span><select id="mp3Rate"><option value="44100" selected>44,1 kHz</option><option value="48000">48 kHz</option></select></label>
+    </div></details>
     <label class="check" id="inclRow" hidden><input id="inclOriginal" type="checkbox"><span data-i18n="exp.includeOriginal"></span></label>
     <p id="submitStatus" class="ok" aria-live="polite"></p>
     <p id="mp3Status" class="muted" aria-live="polite"></p>
@@ -167,6 +145,40 @@
     <p id="submitSoon" class="muted small" data-i18n="exp.submitSoon"></p>
   </section>
 </main>
+
+<dialog id="recDialog" class="sheet">
+  <div class="sheet-head"><strong data-i18n="studio.recSettings"></strong><button id="recDialogClose" class="icon-btn" type="button">✕</button></div>
+  <div class="sheet-body">
+    <div class="row"><button id="micBtn" class="btn primary" data-i18n="rec.enable"></button><select id="deviceSelect" data-i18n-title="rec.device" title="Micrófono" hidden></select></div>
+    <label class="field"><span data-i18n="rec.gain"></span><input id="gainRange" type="range" min="0.25" max="3" step="0.05" value="1"><output id="gainOut">1.0×</output></label>
+    <label class="check"><input id="nsCheck" type="checkbox"><span data-i18n="rec.ns"></span></label>
+    <label class="check"><input id="monitorCheck" type="checkbox"><span data-i18n="rec.monitor"></span></label>
+    <p id="monitorWarn" class="warn" hidden data-i18n="rec.monitorWarn"></p>
+    <h3 data-i18n="rec.optionsTitle"></h3>
+    <div class="grid2">
+      <label class="field"><span data-i18n="rec.sr"></span><select id="srSelect"><option value="48000">48000 Hz</option><option value="44100">44100 Hz</option></select></label>
+      <label class="check"><input id="hpfLiveCheck" type="checkbox"><span data-i18n="rec.hpfLive"></span></label>
+      <label class="check"><input id="ecCheck" type="checkbox"><span data-i18n="rec.echoCancel"></span></label>
+      <label class="check"><input id="agcCheck" type="checkbox"><span data-i18n="rec.agc"></span></label>
+      <label class="check"><input id="countdownCheck" type="checkbox"><span data-i18n="rec.countdown"></span></label>
+      <label class="check"><input id="autoStartCheck" type="checkbox"><span data-i18n="rec.autoStart"></span></label>
+      <label class="check"><input id="autoStopCheck" type="checkbox"><span data-i18n="rec.autoStop"></span></label>
+      <div class="field"><button type="button" id="calibBtn" class="btn" disabled data-i18n="rec.calib"></button><p id="calibOut" class="muted small"></p></div>
+    </div>
+    <p class="muted small" data-i18n="rec.reopen"></p>
+  </div>
+</dialog>
+
+<dialog id="voiceDialog" class="sheet">
+  <div class="sheet-head">
+    <select id="profileSelect2"></select>
+    <button id="testBtn2" class="btn primary small" type="button">▶ <span data-i18n="fx.test"></span></button>
+    <button id="stopBtn2" class="icon-btn" type="button">⏹</button>
+    <button id="voiceDialogClose" class="icon-btn" type="button">✕</button>
+  </div>
+  <label class="check sheet-auto"><input id="autoTestCheck" type="checkbox" checked><span data-i18n="fx.auto"></span></label>
+  <div class="sheet-body"><div id="procControls"></div></div>
+</dialog>
 
 <audio id="cardPlayer" hidden></audio>
 <script type="module" src="app.js"></script>

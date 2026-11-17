@@ -82,3 +82,4 @@ Ver `vendor/README.md`.
 - Los controles se definen en `processing/controls.js`; el motor está en `processing/dsp-extra.js` (STFT propia, sin dependencias nuevas).
 - **Grabador**: frecuencia de muestreo, filtro de graves en vivo, eco/AGC del navegador (desactivados por defecto), cuenta atrás, inicio automático con voz (con 0,5 s de pre-grabación), parada tras silencio y medición del ruido de la sala.
 - Tipografía idéntica a ZadALQulub (`fonts/`), con botones A−/A+.
+- **Interfaz tipo grabadora de voz**: botón grande de grabar (activa el micrófono solo), pausa y stop; reproductor con play/pausa/stop, alternancia Original / Con efectos y botón *Probar* que procesa y reproduce al instante; los ajustes del grabador y de la voz están en hojas inferiores. Cambio de tono (±12 semitonos) con WSOLA, sin cambiar la duración.

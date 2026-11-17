@@ -304,5 +304,16 @@
  "rec.silenceStop": "Grabación detenida por silencio prolongado.",
  "rec.optionsTitle": "Opciones avanzadas del grabador",
  "rec.reopen": "Los cambios de micrófono, frecuencia o filtros del navegador se aplican al volver a activar el micrófono.",
- "rec.lastTake": "Repetir (descartar y grabar de nuevo)"
+ "rec.lastTake": "Repetir (descartar y grabar de nuevo)",
+ "studio.textToggle": "Ampliar o reducir el texto",
+ "studio.recSettings": "Ajustes del grabador",
+ "studio.voiceSettings": "Ajustes de voz",
+ "ab.orig": "Original",
+ "ab.fx": "Con efectos",
+ "fx.test": "Probar",
+ "fx.auto": "Probar automáticamente al cambiar un ajuste",
+ "exp.options": "Opciones del MP3",
+ "g.pitch": "Cambio de tono (pitch)",
+ "p.pitch": "Cambiar el tono de la voz",
+ "p.semitones": "Semitonos (+ sube, − baja)"
 }
