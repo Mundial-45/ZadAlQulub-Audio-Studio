@@ -2,6 +2,6 @@
 // la seguridad la imponen las políticas RLS. NUNCA pongas aquí la clave "service_role".
 // Si se deja vacío, la aplicación funciona en modo local (sin inicio de sesión ni envío).
 export const CONFIG = {
-  SUPABASE_URL: '',        // p. ej. https://abcdxyz.supabase.co
-  SUPABASE_ANON_KEY: ''    // clave pública "anon" / "publishable"
+  SUPABASE_URL: 'https://ohqbiwetysrvjdbsnacx.supabase.co/rest/v1/',        // p. ej. https://abcdxyz.supabase.co
+  SUPABASE_ANON_KEY: 'sb_publishable_Bi6sHJYtAu2IJZoabLUSAQ_bdgiVeAs'    // clave pública "anon" / "publishable"
 };
