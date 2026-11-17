@@ -20,6 +20,10 @@ import { submitRecording } from './services/audio-upload.js';
 import { renderAdmin } from './admin/dashboard.js';
 
 const $ = (id) => document.getElementById(id);
+// ﴿…﴾ = Corán (KFGQPC Hafs); «…» = hadiz (Scheherazade). Igual que en ZadALQulub.
+const fmtAr = (s) => esc(String(s == null ? '' : s).replace(/\\n/g, '\n'))
+  .replace(/﴿[^﴾]*﴾/g, (m) => `<span class="inline-quran">${m}</span>`)
+  .replace(/«[^»]*»/g, (m) => `<span class="inline-hadith">${m}</span>`);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const PAGE = 40;
 const strip = (s) => String(s || '').replace(/[ً-ٰٟـۖ-ۭ]/g, '').toLowerCase();
@@ -109,7 +113,7 @@ function renderList() {
     return `<article class="card" data-id="${i.id}">
       <div class="meta"><span class="badge">${esc(i.id)}</span>${statusBadge(i.id)}<span class="muted small">${esc(t('card.group'))}: ${esc(lang() === 'ar' ? i.groupTitleAr : i.groupTitleEs)}</span>
       ${i.sameTextAs && i.sameTextAs.length ? `<span class="muted small">· ${esc(t('card.sameText', { n: i.sameTextAs.length }))}</span>` : ''}</div>
-      <div class="ar" lang="ar" dir="rtl">${esc(i.text)}</div>
+      <div class="ar" lang="ar" dir="rtl">${fmtAr(i.text)}</div>
       <div class="actions">
         <button class="btn primary" data-act="record">${esc(t(st.state === 'pending' || st.state === 'recorded' ? 'card.record' : 'card.rerecord'))}</button>
         <button class="btn" data-act="play" ${hasAudio ? '' : 'disabled'}>▶ ${esc(t(isDone(st) || st.state === 'r_rejected' ? 'card.play' : 'card.currentAudio'))}</button>
@@ -198,7 +202,7 @@ function openStudio(id) {
   S.original = null; S.originalWav = null; S.processed = null; S.mp3 = null;
   S.returnView = S.view === 'studio' ? S.returnView : S.view; showView('studio');
   $('studioId').textContent = item.id; $('studioGroup').textContent = lang() === 'ar' ? item.groupTitleAr : item.groupTitleEs;
-  $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${esc(item.text)}</div>`;
+  $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${fmtAr(item.text)}</div>`;
   $('editBody').hidden = true; $('editEmpty').hidden = false; $('mp3Btn').disabled = true;
   $('downloadLink').hidden = true; $('saveBtn').hidden = true; $('submitBtn').hidden = true; $('inclRow').hidden = true; $('submitStatus').textContent = ''; $('mp3Player').hidden = true; $('mp3Status').textContent = ''; $('saveStatus').textContent = ''; $('recSaved').textContent = ''; $('procStats').textContent = ''; $('procStatus').textContent = '';
   paramsToControls(PROFILES[$('profileSelect').value || defaultProfile]());

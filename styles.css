@@ -5,7 +5,8 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 'Tajawal','Inter',system-ui,-apple-system,sans-serif}
 h1,h2,h3,.brand h1,.panel h2,.panel h3{font-family:'Montserrat','Cairo',system-ui,sans-serif}
 [dir=rtl] h1,[dir=rtl] h2,[dir=rtl] h3,[lang=ar] h1,[lang=ar] h2,[lang=ar] h3{font-family:'Cairo','Montserrat',system-ui,sans-serif}
-.ar .inline-quran{font-family:'KFGQPC Hafs','Scheherazade New',serif;font-weight:400;font-size:1.15em}
+/* Citas como en ZadALQulub: ﴿…﴾ con KFGQPC Hafs, «…» con Scheherazade; el resto, Amiri Quran */
+.ar .inline-quran{font-family:'KFGQPC Hafs','Scheherazade New',serif;font-size:1.15em;font-weight:400!important;line-height:inherit}
 .ar .inline-hadith{font-family:'Scheherazade New','Crimson Pro',serif;font-size:1.08em}
 .top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}.brand h1{font-size:1.05rem;margin:0}.brand small{color:var(--muted);display:block;font-size:.75rem}

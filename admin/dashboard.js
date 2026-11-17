@@ -3,6 +3,7 @@
 import { getClient, signedUrl, publicUrl } from '../services/supabase.js';
 import { approve, reject } from './approval.js';
 import { publish, listVersions, restoreVersion } from './publishing.js';
+import { integrationTab } from './integration.js';
 
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const fmtDate = (d) => (d ? new Date(d).toLocaleString() : '—');
@@ -15,10 +16,10 @@ export async function renderAdmin(root, ctx) {
   try { const r = await client.from('profiles').select('*').order('created_at'); profiles = r.data || []; } catch (e) {}
   const nameOf = (id) => { const p = profiles.find((x) => x.id === id); return p ? (p.display_name || p.email) : id.slice(0, 8); };
 
-  root.innerHTML = `<div class="tabs" id="adminTabs">${['recordings', 'collaborators', 'stats'].map((k) => `<button class="tab" data-tab="${k}" aria-selected="${st.tab === k}">${esc(t('admin.tab.' + k))}</button>`).join('')}</div><div id="adminBody"></div>`;
+  root.innerHTML = `<div class="tabs" id="adminTabs">${['recordings', 'collaborators', 'stats', 'integration'].map((k) => `<button class="tab" data-tab="${k}" aria-selected="${st.tab === k}">${esc(t('admin.tab.' + k))}</button>`).join('')}</div><div id="adminBody"></div>`;
   root.querySelector('#adminTabs').onclick = (e) => { const b = e.target.closest('.tab'); if (b) { st.tab = b.dataset.tab; renderAdmin(root, ctx); } };
   const body = root.querySelector('#adminBody');
-  if (st.tab === 'recordings') await recordingsTab(body); else if (st.tab === 'collaborators') collaboratorsTab(body); else await statsTab(body);
+  if (st.tab === 'recordings') await recordingsTab(body); else if (st.tab === 'collaborators') collaboratorsTab(body); else if (st.tab === 'integration') await integrationTab(body, { t, client, catalog }); else await statsTab(body);
 
   // ---------------------------------------------------------------- grabaciones
   async function recordingsTab(el) {
