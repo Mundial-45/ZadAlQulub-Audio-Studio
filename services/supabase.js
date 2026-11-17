@@ -2,6 +2,8 @@
 import { CONFIG } from '../config.js';
 
 export const FOLDERS = { azkar: 'adhkar', adya: 'adiya', ruqyah: 'ruqya', munajat: 'munajat' };
+// Acepta la URL con barra final o con rutas como /rest/v1/ y se queda solo con el origen (https://xxxx.supabase.co).
+export const baseUrl = () => { try { return new URL(CONFIG.SUPABASE_URL).origin; } catch (e) { return ''; } };
 export const isConfigured = () => !!(window.__SUPABASE_FAKE || (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY));
 
 let client = null;
@@ -13,10 +15,10 @@ export async function getClient() {
   if (!isConfigured()) return null;
   if (client) return client;
   if (!window.supabase) await loadScript(new URL('../vendor/supabase.js', import.meta.url).href);
-  client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  client = window.supabase.createClient(baseUrl(), CONFIG.SUPABASE_ANON_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
   return client;
 }
-export const publicUrl = (path, version) => CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/storage/v1/object/public/published/' + path + (version ? '?v=' + version : '');
+export const publicUrl = (path, version) => baseUrl() + '/storage/v1/object/public/published/' + path + (version ? '?v=' + version : '');
 
 export async function signIn(email, password) {
   const c = await getClient(); const { data, error } = await c.auth.signInWithPassword({ email, password });

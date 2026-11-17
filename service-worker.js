@@ -1,5 +1,5 @@
 // Caché de la aplicación (PWA). Sube CACHE_VERSION cuando cambien archivos de la app.
-const CACHE_VERSION = 'studio-v2';
+const CACHE_VERSION = 'studio-v3';
 const SHELL = ['./', 'index.html', 'app.js', 'config.js', 'styles.css', 'manifest.json', 'data/catalog.json',
   'recording/recorder.js', 'recording/microphone.js', 'recording/waveform.js', 'recording/audio-monitor.js', 'recording/pcm-worklet.js', 'recording/wav.js',
   'processing/pipeline.js', 'processing/noise-reduction.js', 'processing/rnnoise-engine.js', 'processing/equalizer.js', 'processing/compressor.js', 'processing/normalizer.js', 'processing/limiter.js', 'processing/dsp-core.js', 'processing/dsp-worker.js', 'processing/worker-client.js', 'processing/resample.js', 'processing/profiles.js', 'processing/effects.js', 'processing/mp3-exporter.js', 'processing/mp3-worker.js',
