@@ -5,6 +5,7 @@ const base = () => ({
   hpf: { enabled: true, freq: 70 },
   eq: { enabled: true, bands: [band('lowshelf', 160, 0, 0.7), band('peaking', 3000, 0, 1), band('highshelf', 9000, 0, 0.7)] },
   comp: { enabled: true, threshold: -26, ratio: 1.8, knee: 12, attack: 0.012, release: 0.25, makeup: 0 },
+  effect: { type: 'none', mix: 0.25 },
   loudness: { enabled: true, target: -16 },
   limiter: { enabled: true, ceiling: -1 },
   gainDb: 0

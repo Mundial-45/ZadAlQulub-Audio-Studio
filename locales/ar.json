@@ -124,5 +124,12 @@
  "caps.insecure": "الميكروفون يعمل فقط عبر HTTPS (أو localhost).",
  "common.close": "إغلاق",
  "common.seconds": "ث",
- "common.confirmDiscard": "هل تتجاهل هذا التسجيل؟ ستفقد المسودة."
+ "common.confirmDiscard": "هل تتجاهل هذا التسجيل؟ ستفقد المسودة.",
+ "fx.title": "مؤثر صوتي",
+ "fx.none": "بدون مؤثر",
+ "fx.warm": "دافئ (جهير أكثر)",
+ "fx.room": "صدى غرفة",
+ "fx.hall": "صدى مسجد / قاعة كبيرة",
+ "fx.echo": "صدى خفيف",
+ "fx.mix": "كمية المؤثر"
 }

@@ -124,5 +124,12 @@
  "caps.insecure": "El micrófono solo funciona con HTTPS (o localhost).",
  "common.close": "Cerrar",
  "common.seconds": "s",
- "common.confirmDiscard": "¿Descartar esta grabación? Se perderá el borrador."
+ "common.confirmDiscard": "¿Descartar esta grabación? Se perderá el borrador.",
+ "fx.title": "Efecto de voz",
+ "fx.none": "Sin efecto",
+ "fx.warm": "Cálida (más graves)",
+ "fx.room": "Reverberación de sala",
+ "fx.hall": "Reverberación de mezquita / sala grande",
+ "fx.echo": "Eco suave",
+ "fx.mix": "Cantidad de efecto"
 }

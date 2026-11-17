@@ -35,7 +35,7 @@ function filtered() {
     if (S.filter === 'pending' && st === 'done') return false;
     if (S.filter === 'done' && st !== 'done') return false;
     if (!q) return true;
-    return i.id.includes(q) || String(i.itemNumber) === q || strip(i.text).includes(q) || strip(i.es).includes(q) || strip(i.latin).includes(q) || strip(i.groupTitleEs).includes(q) || strip(i.groupTitleAr).includes(q);
+    return i.id.includes(q) || String(i.itemNumber) === q || strip(i.text).includes(q) || strip(i.groupTitleEs).includes(q) || strip(i.groupTitleAr).includes(q);
   });
 }
 function renderTabs() {
@@ -63,9 +63,6 @@ function renderList() {
       <div class="meta"><span class="badge">${esc(i.id)}</span>${statusBadge(i.id)}<span class="muted small">${esc(t('card.group'))}: ${esc(lang() === 'ar' ? i.groupTitleAr : i.groupTitleEs)}</span>
       ${i.sameTextAs && i.sameTextAs.length ? `<span class="muted small">· ${esc(t('card.sameText', { n: i.sameTextAs.length }))}</span>` : ''}</div>
       <div class="ar" lang="ar" dir="rtl">${esc(i.text)}</div>
-      ${i.latin ? `<div class="latin">${esc(i.latin)}</div>` : ''}
-      ${i.es ? `<div class="es"><span class="muted small">${esc(t('card.es'))}:</span> ${esc(i.es)}</div>` : ''}
-      ${lang() === 'fr' ? `<div class="muted small">${esc(t('card.frUnavailable'))}</div>` : ''}
       <div class="actions">
         <button class="btn primary" data-act="record">${esc(t(st.state === 'pending' ? 'card.record' : 'card.rerecord'))}</button>
         <button class="btn" data-act="play" ${hasAudio ? '' : 'disabled'}>▶ ${esc(t(st.state === 'done' ? 'card.play' : 'card.currentAudio'))}</button>
@@ -99,6 +96,7 @@ function paramsToControls(p) {
   $('hpfOn').checked = p.hpf.enabled; $('hpfFreq').value = p.hpf.freq;
   $('eqLow').value = p.eq.bands[0].gain; $('eqMid').value = p.eq.bands[1].gain; $('eqHigh').value = p.eq.bands[2].gain;
   $('compOn').checked = p.comp.enabled; $('compThr').value = p.comp.threshold; $('compRatio').value = p.comp.ratio;
+  $('fxType').value = (p.effect && p.effect.type) || 'none'; $('fxMix').value = p.effect ? p.effect.mix : 0.25;
   $('normOn').checked = p.loudness.enabled; $('lufsTarget').value = p.loudness.target; $('ceiling').value = p.limiter.ceiling; $('gainDb').value = p.gainDb;
   S.profile = p; refreshOutputs();
 }
@@ -110,6 +108,7 @@ function controlsToParams() {
   p.comp.enabled = $('compOn').checked; p.comp.threshold = val('compThr'); p.comp.ratio = val('compRatio');
   p.loudness = { enabled: $('normOn').checked, target: val('lufsTarget') };
   p.limiter = { enabled: true, ceiling: val('ceiling') }; p.gainDb = val('gainDb');
+  p.effect = { type: $('fxType').value, mix: val('fxMix') };
   return p;
 }
 function refreshOutputs() {
@@ -117,6 +116,7 @@ function refreshOutputs() {
   $('eqLowOut').textContent = val('eqLow') + ' dB'; $('eqMidOut').textContent = val('eqMid') + ' dB'; $('eqHighOut').textContent = val('eqHigh') + ' dB';
   $('compThrOut').textContent = val('compThr') + ' dB'; $('compRatioOut').textContent = val('compRatio').toFixed(1) + ':1';
   $('lufsOut').textContent = val('lufsTarget') + ' LUFS'; $('ceilOut').textContent = val('ceiling') + ' dBTP'; $('gainDbOut').textContent = val('gainDb') + ' dB';
+  $('fxMixOut').textContent = Math.round(val('fxMix') * 100) + ' %'; $('fxMix').disabled = $('fxType').value === 'none';
   $('noiseWarn').hidden = !($('noiseOn').checked && val('noiseAmt') > 0.8);
 }
 
@@ -125,7 +125,7 @@ function openStudio(id) {
   S.original = null; S.originalWav = null; S.processed = null; S.mp3 = null;
   $('catalogView').hidden = true; $('studioView').hidden = false; window.scrollTo(0, 0);
   $('studioId').textContent = item.id; $('studioGroup').textContent = lang() === 'ar' ? item.groupTitleAr : item.groupTitleEs;
-  $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${esc(item.text)}</div>${item.latin ? `<div class="latin">${esc(item.latin)}</div>` : ''}${item.es ? `<div class="es">${esc(item.es)}</div>` : ''}`;
+  $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${esc(item.text)}</div>`;
   $('editBody').hidden = true; $('editEmpty').hidden = false; $('mp3Btn').disabled = true;
   $('downloadLink').hidden = true; $('saveBtn').hidden = true; $('mp3Player').hidden = true; $('mp3Status').textContent = ''; $('saveStatus').textContent = ''; $('recSaved').textContent = ''; $('procStats').textContent = ''; $('procStatus').textContent = '';
   paramsToControls(PROFILES[$('profileSelect').value || defaultProfile]());

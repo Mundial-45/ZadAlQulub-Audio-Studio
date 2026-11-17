@@ -124,5 +124,12 @@
  "caps.insecure": "Le micro ne fonctionne qu'en HTTPS (ou localhost).",
  "common.close": "Fermer",
  "common.seconds": "s",
- "common.confirmDiscard": "Abandonner cet enregistrement ? Le brouillon sera perdu."
+ "common.confirmDiscard": "Abandonner cet enregistrement ? Le brouillon sera perdu.",
+ "fx.title": "Effet de voix",
+ "fx.none": "Aucun effet",
+ "fx.warm": "Chaleureuse (plus de graves)",
+ "fx.room": "Réverbération de salle",
+ "fx.hall": "Réverbération de mosquée / grande salle",
+ "fx.echo": "Écho doux",
+ "fx.mix": "Quantité d'effet"
 }

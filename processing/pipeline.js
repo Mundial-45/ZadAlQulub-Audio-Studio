@@ -2,19 +2,26 @@
 import { reduceNoise } from './noise-reduction.js';
 import { buildEq } from './equalizer.js';
 import { buildCompressor } from './compressor.js';
+import { buildEffect, EFFECTS } from './effects.js';
 import { callWorker } from './worker-client.js';
 
 const DSP = new URL('./dsp-worker.js', import.meta.url);
 
 async function renderFilters(pcm, sr, params) {
-  const ctx = new OfflineAudioContext(1, pcm.length, sr);
+  const effType = params.effect && params.effect.type !== 'none' ? params.effect.type : 'none';
+  const tail = (EFFECTS[effType] || EFFECTS.none).tail, extra = Math.round(tail * sr);
+  const ctx = new OfflineAudioContext(1, pcm.length + extra, sr);
   const chain = [...buildEq(ctx, params), ...buildCompressor(ctx, params.comp)];
-  if (!chain.length) return pcm;
+  const fx = buildEffect(ctx, params.effect);
+  if (!chain.length && !fx) return pcm;
   const buf = ctx.createBuffer(1, pcm.length, sr); buf.copyToChannel(pcm, 0);
   const src = ctx.createBufferSource(); src.buffer = buf;
-  let prev = src; for (const n of chain) { prev.connect(n); prev = n; } prev.connect(ctx.destination);
-  src.start();
-  return (await ctx.startRendering()).getChannelData(0).slice();
+  let prev = src; for (const n of chain) { prev.connect(n); prev = n; }
+  if (fx) { prev.connect(fx.input); prev = fx.output; }
+  prev.connect(ctx.destination); src.start();
+  const out = (await ctx.startRendering()).getChannelData(0).slice();
+  if (extra) { const f = Math.min(out.length, Math.round(0.25 * sr)); for (let i = 0; i < f; i++) out[out.length - 1 - i] *= i / f; }  // cierre suave de la cola
+  return out;
 }
 
 export async function analyze(pcm, sr) {

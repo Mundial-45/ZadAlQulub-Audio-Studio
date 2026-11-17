@@ -106,6 +106,8 @@
         <label class="field"><span data-i18n="proc.ratio"></span><input id="compRatio" type="range" min="1" max="4" step="0.1"><output id="compRatioOut"></output></label>
         <label class="field"><span><input id="normOn" type="checkbox"> <span data-i18n="proc.target"></span></span><input id="lufsTarget" type="range" min="-23" max="-12" step="0.5"><output id="lufsOut"></output></label>
         <label class="field"><span data-i18n="proc.ceiling"></span><input id="ceiling" type="range" min="-6" max="-0.1" step="0.1"><output id="ceilOut"></output></label>
+        <label class="field"><span data-i18n="fx.title"></span><select id="fxType"><option value="none" data-i18n="fx.none"></option><option value="warm" data-i18n="fx.warm"></option><option value="room" data-i18n="fx.room"></option><option value="hall" data-i18n="fx.hall"></option><option value="echo" data-i18n="fx.echo"></option></select></label>
+        <label class="field"><span data-i18n="fx.mix"></span><input id="fxMix" type="range" min="0" max="1" step="0.05"><output id="fxMixOut"></output></label>
         <label class="field"><span data-i18n="proc.gain"></span><input id="gainDb" type="range" min="-12" max="12" step="0.5"><output id="gainDbOut"></output></label>
       </div>
       <p id="noiseWarn" class="warn" hidden data-i18n="proc.noiseWarn"></p>
