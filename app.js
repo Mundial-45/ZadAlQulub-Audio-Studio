@@ -193,9 +193,9 @@ function captureNoiseProfile() {
   const prof = noiseProfileOf(editor.pcm.slice(sel.start, sel.end), 1024);
   if (!prof) { info.textContent = t('p.profileShort'); return; }
   S.profile = controlsToParams(); S.profile.spectral.profile = prof; S.profile.spectral.profileSr = editor.sr; S.profile.spectral.enabled = true;
-  paramsToControls(S.profile);
+  paramsToControls(S.profile); saveVoicePrefs();
 }
-function clearNoiseProfile() { S.profile = controlsToParams(); S.profile.spectral.profile = null; S.profile.spectral.profileSr = 0; paramsToControls(S.profile); }
+function clearNoiseProfile() { S.profile = controlsToParams(); S.profile.spectral.profile = null; S.profile.spectral.profileSr = 0; paramsToControls(S.profile); saveVoicePrefs(); }
 
 function openStudio(id) {
   const item = S.catalog.byId.get(id); S.item = item;
@@ -205,7 +205,6 @@ function openStudio(id) {
   $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${fmtAr(item.text)}</div>`;
   $('editBody').hidden = true; $('editEmpty').hidden = false; $('mp3Btn').disabled = true;
   $('downloadLink').hidden = true; $('saveBtn').hidden = true; $('submitBtn').hidden = true; $('inclRow').hidden = true; $('submitStatus').textContent = ''; $('mp3Player').hidden = true; $('mp3Status').textContent = ''; $('saveStatus').textContent = ''; $('recSaved').textContent = ''; $('procStats').textContent = ''; $('procStatus').textContent = '';
-  paramsToControls(PROFILES[$('profileSelect').value || defaultProfile]());
   live.clear(); $('timer').textContent = '00:00.0'; $('recWarn').textContent = '';
   // borrador previo
   store.getRecord(id).then(async (rec) => {
@@ -231,7 +230,9 @@ function setRecUi(state) {
 async function toggleMic() {
   if (recorder.state !== 'closed') { await recorder.close(); setRecUi('closed'); $('recInfo').textContent = ''; return; }
   try {
-    const info = await recorder.open({ deviceId: $('deviceSelect').value || undefined, noiseSuppression: $('nsCheck').checked, echoCancellation: $('ecCheck').checked, autoGainControl: $('agcCheck').checked, sampleRate: parseInt($('srSelect').value, 10), hpf: $('hpfLiveCheck').checked ? 80 : 0, gain: val('gainRange') });
+    const wantDev = $('deviceSelect').value || recPrefs.device || undefined;
+    const openOpts = (dev) => ({ deviceId: dev, noiseSuppression: $('nsCheck').checked, echoCancellation: $('ecCheck').checked, autoGainControl: $('agcCheck').checked, sampleRate: parseInt($('srSelect').value, 10), hpf: $('hpfLiveCheck').checked ? 80 : 0, gain: val('gainRange') });
+    let info; try { info = await recorder.open(openOpts(wantDev)); } catch (e) { if (!wantDev) throw e; await recorder.close(); info = await recorder.open(openOpts(undefined)); }   // el micrófono guardado ya no existe
     recorder.setMonitor($('monitorCheck').checked);
     lastDevices = await listInputDevices();
     const sel = $('deviceSelect'), cur = info.track && info.track.deviceId;
@@ -240,6 +241,35 @@ async function toggleMic() {
     setRecUi('ready');
   } catch (e) { $('recWarn').textContent = t('rec.denied', { err: e.message || e.name }); setRecUi('closed'); }
 }
+// --- ajustes guardados: se recuerdan para las siguientes grabaciones hasta que los cambies
+const REC_KEYS = { gainRange: 'gain', nsCheck: 'ns', ecCheck: 'ec', agcCheck: 'agc', srSelect: 'sr', hpfLiveCheck: 'hpf', countdownCheck: 'countdown', autoStartCheck: 'autoStart', autoStopCheck: 'autoStop' };
+let recPrefs = {};
+const lsGet = (k) => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+function saveRecPrefs() {
+  const p = { device: $('deviceSelect').value || recPrefs.device || '' };
+  for (const [id, key] of Object.entries(REC_KEYS)) { const el = $(id); p[key] = el.type === 'checkbox' ? el.checked : el.value; }
+  recPrefs = p; lsSet('studio_rec', p);
+}
+function loadRecPrefs() {
+  recPrefs = lsGet('studio_rec') || {};
+  for (const [id, key] of Object.entries(REC_KEYS)) { const el = $(id), v = recPrefs[key]; if (v == null) continue; if (el.type === 'checkbox') el.checked = !!v; else el.value = v; }
+  $('gainOut').textContent = parseFloat($('gainRange').value).toFixed(2) + '×';
+}
+function resetRecPrefs() {
+  try { localStorage.removeItem('studio_rec'); } catch (e) {}
+  recPrefs = {}; const d = { gainRange: '1', srSelect: '48000' };
+  for (const id of Object.keys(REC_KEYS)) { const el = $(id); if (el.type === 'checkbox') el.checked = false; else el.value = d[id] != null ? d[id] : el.value; }
+  $('deviceSelect').value = ''; $('gainOut').textContent = '1.00×'; if (recorder.state !== 'closed') recorder.setGain(1);
+}
+let voiceSaveTimer = null;
+function saveVoicePrefs() { clearTimeout(voiceSaveTimer); voiceSaveTimer = setTimeout(() => { try { lsSet('studio_voice', { profile: $('profileSelect').value, params: controlsToParams() }); } catch (e) {} }, 300); }
+function loadVoicePrefs() {
+  const v = lsGet('studio_voice'), name = v && PROFILES[v.profile] ? v.profile : defaultProfile;
+  $('profileSelect').value = $('profileSelect2').value = name;
+  paramsToControls(v && v.params ? v.params : PROFILES[name]());
+}
+
 // --- opciones avanzadas del grabador
 let armed = false, silenceFor = 0, calib = null;
 let counting = false;
@@ -390,7 +420,7 @@ function bind() {
   document.addEventListener('langchange', () => { refreshOutputs(); if (S.view === 'my') renderMy(); if (S.view === 'admin' && S.profile) renderAdmin($('adminView'), { t, profile: S.profile, catalog: S.catalog, adminState: S.adminState }); if (S.catalog) renderList(); showCaps(); setRecUi(recorder.state); updateEditInfo(); if (S.item && !$('studioView').hidden) $('studioGroup').textContent = lang() === 'ar' ? S.item.groupTitleAr : S.item.groupTitleEs; });
 
   $('micBtn').onclick = toggleMic;
-  $('deviceSelect').onchange = async () => { if (recorder.state === 'ready') { await recorder.close(); await toggleMic(); } };
+  $('deviceSelect').onchange = async () => { saveRecPrefs(); if (recorder.state === 'ready') { await recorder.close(); await toggleMic(); } };
   $('gainRange').oninput = (e) => { recorder.setGain(parseFloat(e.target.value)); $('gainOut').textContent = parseFloat(e.target.value).toFixed(2) + '×'; };
   $('monitorCheck').onchange = (e) => { recorder.setMonitor(e.target.checked); $('monitorWarn').hidden = !e.target.checked; };
   $('recBtn').onclick = startRecording;
@@ -422,10 +452,13 @@ function bind() {
   editor.addEventListener('change', (e) => { $('undoBtn').disabled = !e.detail.canUndo; $('redoBtn').disabled = !e.detail.canRedo; const sel = e.detail.selection; ['trimBtn', 'deleteBtn', 'silenceBtn'].forEach((b) => { $(b).disabled = !sel; }); updateEditInfo(); });
   editor.addEventListener('seek', () => { previewer.stop(); setPlayUi(false); });
 
-  const onProfile = (e) => { $('profileSelect').value = $('profileSelect2').value = e.target.value; paramsToControls(PROFILES[e.target.value]()); scheduleAutoTest(); };
+  const onProfile = (e) => { $('profileSelect').value = $('profileSelect2').value = e.target.value; paramsToControls(PROFILES[e.target.value]()); saveVoicePrefs(); scheduleAutoTest(); };
   $('profileSelect').onchange = onProfile; $('profileSelect2').onchange = onProfile;
   buildProcPanel();
-  $('procControls').addEventListener('input', () => { refreshOutputs(); scheduleAutoTest(); });
+  loadRecPrefs(); loadVoicePrefs();
+  Object.keys(REC_KEYS).forEach((id) => { $(id).addEventListener('change', saveRecPrefs); $(id).addEventListener('input', saveRecPrefs); });
+  $('recReset').onclick = () => { resetRecPrefs(); };
+  $('procControls').addEventListener('input', () => { refreshOutputs(); scheduleAutoTest(); saveVoicePrefs(); });
   $('procControls').addEventListener('click', (e) => { if (e.target.id === 'profCapture') captureNoiseProfile(); else if (e.target.id === 'profClear') clearNoiseProfile(); });
   // hojas inferiores (ajustes del grabador y de la voz)
   const sheet = (dlg, openBtns, closeBtn) => { openBtns.forEach((b) => { b.onclick = () => dlg.showModal(); }); $(closeBtn).onclick = () => dlg.close(); dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); }); };

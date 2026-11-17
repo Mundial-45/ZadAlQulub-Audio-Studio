@@ -334,5 +334,7 @@
  "int.summary": "Se integrarán {n} elemento(s); se quitarán {r}.",
  "int.generate": "Generar audio-overrides.js",
  "int.download": "Descargar de nuevo",
- "int.steps": "Después: copia el archivo a la raíz de ZadALQulub (sustituye al existente), haz commit y push. En Android, cópialo también a assets."
+ "int.steps": "Después: copia el archivo a la raíz de ZadALQulub (sustituye al existente), haz commit y push. En Android, cópialo también a assets.",
+ "rec.saved2": "Estos ajustes, y los de voz, se guardan en este dispositivo y se usan en las siguientes grabaciones hasta que los cambies.",
+ "rec.reset": "Restablecer ajustes del grabador"
 }
