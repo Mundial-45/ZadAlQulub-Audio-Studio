@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1419">
+<title>ZadALQulub Audio Studio</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="icons/icon-192.png" alt="" width="36" height="36"><div><h1 data-i18n="app.title">ZadALQulub Audio Studio</h1><small data-i18n="app.subtitle"></small></div></div>
+  <div class="top-actions">
+    <select id="langSelect" data-i18n-title="ui.language" title="Idioma"></select>
+    <button id="themeBtn" class="icon-btn" data-i18n-title="ui.theme" title="Tema">◐</button>
+    <button id="capsBtn" class="icon-btn" data-i18n-title="caps.title" title="Compatibilidad">ⓘ</button>
+  </div>
+</header>
+
+<dialog id="capsDialog"><h2 data-i18n="caps.title"></h2><ul id="capsList"></ul><p id="capsNote" class="warn"></p><button id="capsClose" class="btn" data-i18n="common.close"></button></dialog>
+
+<main id="catalogView">
+  <nav id="tabs" class="tabs" role="tablist"></nav>
+  <div class="toolbar">
+    <input id="search" type="search" data-i18n-ph="search.placeholder" placeholder="Buscar…">
+    <select id="statusFilter"><option value="all" data-i18n="filter.all"></option><option value="pending" data-i18n="filter.pending"></option><option value="done" data-i18n="filter.done"></option></select>
+  </div>
+  <div class="progress"><div id="progressBar"></div><span id="progressText"></span></div>
+  <div id="list" class="list"></div>
+  <button id="moreBtn" class="btn wide" data-i18n="list.more"></button>
+</main>
+
+<main id="studioView" hidden>
+  <div class="studio-head">
+    <button id="backBtn" class="btn" data-i18n="studio.back"></button>
+    <div><span id="studioId" class="badge"></span> <span id="studioGroup" class="muted"></span></div>
+  </div>
+  <article id="studioText" class="card"></article>
+
+  <section class="panel" id="recPanel">
+    <h2 data-i18n="studio.step1"></h2>
+    <div class="row">
+      <button id="micBtn" class="btn primary" data-i18n="rec.enable"></button>
+      <select id="deviceSelect" data-i18n-title="rec.device" title="Micrófono" hidden></select>
+    </div>
+    <p id="recInfo" class="muted"></p>
+    <label class="field"><span data-i18n="rec.gain"></span><input id="gainRange" type="range" min="0.25" max="3" step="0.05" value="1"><output id="gainOut">1.0×</output></label>
+    <label class="check"><input id="nsCheck" type="checkbox"><span data-i18n="rec.ns"></span></label>
+    <label class="check"><input id="monitorCheck" type="checkbox"><span data-i18n="rec.monitor"></span></label>
+    <p id="monitorWarn" class="warn" hidden data-i18n="rec.monitorWarn"></p>
+    <div class="meter-label muted" data-i18n="rec.level"></div>
+    <canvas id="meter" class="meter" height="26"></canvas>
+    <canvas id="liveWave" class="wave small"></canvas>
+    <div id="timer" class="timer">00:00.0</div>
+    <p id="recWarn" class="warn" aria-live="polite"></p>
+    <div class="row big">
+      <button id="recBtn" class="btn rec" disabled data-i18n="rec.start"></button>
+      <button id="pauseBtn" class="btn" disabled data-i18n="rec.pause"></button>
+      <button id="stopBtn" class="btn" disabled data-i18n="rec.stop"></button>
+    </div>
+    <p id="recSaved" class="ok"></p>
+  </section>
+
+  <section class="panel" id="editPanel">
+    <h2 data-i18n="studio.step2"></h2>
+    <p id="editEmpty" class="muted" data-i18n="edit.empty"></p>
+    <div id="editBody" hidden>
+      <canvas id="editWave" class="wave"></canvas>
+      <p class="muted small" data-i18n="edit.hint"></p>
+      <div class="row wrap">
+        <button id="playBtn" class="btn primary" data-i18n="edit.play"></button>
+        <button id="stopPlayBtn" class="btn" data-i18n="edit.stop"></button>
+        <button id="zoomInBtn" class="btn" data-i18n="edit.zoomIn"></button>
+        <button id="zoomOutBtn" class="btn" data-i18n="edit.zoomOut"></button>
+        <button id="fitBtn" class="btn" data-i18n="edit.fit"></button>
+      </div>
+      <div class="row wrap">
+        <button id="trimBtn" class="btn" data-i18n="edit.trim"></button>
+        <button id="deleteBtn" class="btn" data-i18n="edit.delete"></button>
+        <button id="silenceBtn" class="btn" data-i18n="edit.silence"></button>
+        <button id="fadeInBtn" class="btn" data-i18n="edit.fadeIn"></button>
+        <button id="fadeOutBtn" class="btn" data-i18n="edit.fadeOut"></button>
+      </div>
+      <div class="row wrap">
+        <button id="undoBtn" class="btn" data-i18n="edit.undo"></button>
+        <button id="redoBtn" class="btn" data-i18n="edit.redo"></button>
+        <button id="restoreBtn" class="btn" data-i18n="edit.restore"></button>
+        <button id="discardBtn" class="btn danger" data-i18n="rec.discard"></button>
+      </div>
+      <label class="field"><span data-i18n="edit.volume"></span><input id="volRange" type="range" min="0" max="1" step="0.05" value="1"></label>
+      <div id="editInfo" class="muted"></div>
+
+      <h3 data-i18n="proc.title"></h3>
+      <label class="field"><span data-i18n="proc.profile"></span>
+        <select id="profileSelect"><option value="natural" data-i18n="proc.natural"></option><option value="clean" data-i18n="proc.clean"></option><option value="studio" data-i18n="proc.studio"></option></select></label>
+      <div class="grid2" id="procControls">
+        <label class="field"><span><input id="noiseOn" type="checkbox"> <span data-i18n="proc.noise"></span></span><input id="noiseAmt" type="range" min="0" max="1" step="0.05"><output id="noiseOut"></output></label>
+        <label class="field"><span><input id="hpfOn" type="checkbox"> <span data-i18n="proc.hpf"></span></span><input id="hpfFreq" type="range" min="30" max="200" step="5"><output id="hpfOut"></output></label>
+        <label class="field"><span data-i18n="proc.eqLow"></span><input id="eqLow" type="range" min="-6" max="6" step="0.5"><output id="eqLowOut"></output></label>
+        <label class="field"><span data-i18n="proc.eqMid"></span><input id="eqMid" type="range" min="-6" max="6" step="0.5"><output id="eqMidOut"></output></label>
+        <label class="field"><span data-i18n="proc.eqHigh"></span><input id="eqHigh" type="range" min="-6" max="6" step="0.5"><output id="eqHighOut"></output></label>
+        <label class="field"><span><input id="compOn" type="checkbox"> <span data-i18n="proc.comp"></span></span><input id="compThr" type="range" min="-50" max="-6" step="1"><output id="compThrOut"></output></label>
+        <label class="field"><span data-i18n="proc.ratio"></span><input id="compRatio" type="range" min="1" max="4" step="0.1"><output id="compRatioOut"></output></label>
+        <label class="field"><span><input id="normOn" type="checkbox"> <span data-i18n="proc.target"></span></span><input id="lufsTarget" type="range" min="-23" max="-12" step="0.5"><output id="lufsOut"></output></label>
+        <label class="field"><span data-i18n="proc.ceiling"></span><input id="ceiling" type="range" min="-6" max="-0.1" step="0.1"><output id="ceilOut"></output></label>
+        <label class="field"><span data-i18n="proc.gain"></span><input id="gainDb" type="range" min="-12" max="12" step="0.5"><output id="gainDbOut"></output></label>
+      </div>
+      <p id="noiseWarn" class="warn" hidden data-i18n="proc.noiseWarn"></p>
+      <div class="row wrap">
+        <button id="procBtn" class="btn primary" data-i18n="proc.run"></button>
+        <span class="muted" data-i18n="edit.listen"></span>
+        <button id="playEditedBtn" class="btn" data-i18n="edit.listenEdited"></button>
+        <button id="playProcBtn" class="btn" disabled data-i18n="edit.listenProcessed"></button>
+      </div>
+      <p id="procStatus" class="muted" aria-live="polite"></p>
+      <p id="procStats" class="stats"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="expPanel">
+    <h2 data-i18n="studio.step3"></h2>
+    <div class="grid2">
+      <label class="field"><span data-i18n="exp.bitrate"></span><select id="kbps"><option>128</option><option>160</option><option selected>192</option><option>256</option></select></label>
+      <label class="field"><span data-i18n="exp.rate"></span><select id="mp3Rate"><option value="44100" selected>44,1 kHz</option><option value="48000">48 kHz</option></select></label>
+    </div>
+    <div class="row wrap">
+      <button id="mp3Btn" class="btn primary" disabled data-i18n="exp.make"></button>
+      <a id="downloadLink" class="btn" hidden download data-i18n="exp.download"></a>
+      <button id="saveBtn" class="btn" hidden data-i18n="exp.save"></button>
+    </div>
+    <p id="mp3Status" class="muted" aria-live="polite"></p>
+    <audio id="mp3Player" controls hidden></audio>
+    <p id="saveStatus" class="ok"></p>
+    <p class="muted small" data-i18n="exp.submitSoon"></p>
+  </section>
+</main>
+
+<audio id="cardPlayer" hidden></audio>
+<script type="module" src="app.js"></script>
+</body>
+</html>
