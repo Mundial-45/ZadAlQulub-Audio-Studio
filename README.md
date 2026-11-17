@@ -9,13 +9,13 @@ Este proyecto **no modifica ni depende en tiempo de ejecución** de los reposito
 |---|---|
 | 1 · Motor de audio (grabación, ruido, procesado, MP3) | ✅ Hecha y probada en Chrome con micrófono simulado |
 | 2 · Interfaz, ES/FR/AR, catálogo, PWA | ✅ Hecha |
-| 3 · Supabase (login, roles, base de datos, almacenamiento, RLS) | ⏳ Pendiente |
-| 4 · Panel de colaboradores | ⏳ Pendiente |
-| 5 · Administración (revisar, aprobar, publicar) | ⏳ Pendiente |
+| 3 · Supabase (login, roles, base de datos, almacenamiento, RLS) | ✅ Esquema probado en PostgreSQL local; falta conectarlo a un proyecto real (ver `SETUP.md`) |
+| 4 · Panel de colaboradores (mis grabaciones, envío, estados) | ✅ Hecho (probado con un Supabase simulado) |
+| 5 · Administración (revisar, aprobar, rechazar, publicar, versiones) | ✅ Hecho (probado con un Supabase simulado) |
 | 6 · Integración con ZadALQulub | ⏸ Aplazada (el reemplazo de audios será manual) |
 | 7 · Pruebas en OnePlus CPH2449, tabletas y PC | ⏳ Pendiente |
 
-Ahora mismo todo se guarda **en el propio dispositivo** (IndexedDB). El botón de enviar para revisión llegará con Supabase.
+Sin configurar `config.js` funciona en **modo local** (IndexedDB). Con Supabase configurado hay inicio de sesión, envío para revisión y panel de administración. Instrucciones: **`SETUP.md`**.
 
 ## Cómo publicarlo (GitHub Pages)
 

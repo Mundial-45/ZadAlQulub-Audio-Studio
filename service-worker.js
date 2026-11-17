@@ -1,10 +1,10 @@
 // Caché de la aplicación (PWA). Sube CACHE_VERSION cuando cambien archivos de la app.
-const CACHE_VERSION = 'studio-v1';
-const SHELL = ['./', 'index.html', 'app.js', 'styles.css', 'manifest.json', 'data/catalog.json',
+const CACHE_VERSION = 'studio-v2';
+const SHELL = ['./', 'index.html', 'app.js', 'config.js', 'styles.css', 'manifest.json', 'data/catalog.json',
   'recording/recorder.js', 'recording/microphone.js', 'recording/waveform.js', 'recording/audio-monitor.js', 'recording/pcm-worklet.js', 'recording/wav.js',
-  'processing/pipeline.js', 'processing/noise-reduction.js', 'processing/rnnoise-engine.js', 'processing/equalizer.js', 'processing/compressor.js', 'processing/normalizer.js', 'processing/limiter.js', 'processing/dsp-core.js', 'processing/dsp-worker.js', 'processing/worker-client.js', 'processing/resample.js', 'processing/profiles.js', 'processing/mp3-exporter.js', 'processing/mp3-worker.js',
+  'processing/pipeline.js', 'processing/noise-reduction.js', 'processing/rnnoise-engine.js', 'processing/equalizer.js', 'processing/compressor.js', 'processing/normalizer.js', 'processing/limiter.js', 'processing/dsp-core.js', 'processing/dsp-worker.js', 'processing/worker-client.js', 'processing/resample.js', 'processing/profiles.js', 'processing/effects.js', 'processing/mp3-exporter.js', 'processing/mp3-worker.js',
   'editor/waveform-editor.js', 'editor/audio-trimmer.js', 'editor/preview.js',
-  'services/i18n.js', 'services/content-loader.js', 'services/local-store.js',
+  'services/i18n.js', 'services/content-loader.js', 'services/local-store.js', 'services/supabase.js', 'services/audio-upload.js', 'admin/dashboard.js', 'admin/approval.js', 'admin/publishing.js',
   'locales/es.json', 'locales/fr.json', 'locales/ar.json', 'icons/icon-192.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE_VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });

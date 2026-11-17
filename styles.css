@@ -52,3 +52,14 @@ dialog li{margin:4px 0}.yes{color:var(--ok);font-weight:700}.no{color:var(--dang
 audio{width:100%;margin-top:8px}
 [hidden]{display:none!important}
 @media (max-width:520px){.card .ar{font-size:1.35rem}.brand small{display:none}.top-actions select{max-width:110px}}
+
+.nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 12px;max-width:980px;margin:0 auto}
+.nav .tab{flex:0 0 auto;min-height:44px;padding:8px 14px}.nav #userChip{margin-inline-start:auto}
+.panel.narrow{max-width:420px;margin:30px auto}
+.toolbar.wrap{flex-wrap:wrap}.toolbar select{flex:1 1 150px}
+textarea.reason{width:100%;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text);margin:6px 0}
+.vrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0;padding:4px 0;border-bottom:1px solid var(--line)}
+code.url{display:block;direction:ltr;word-break:break-all;background:var(--track);padding:6px 8px;border-radius:8px;margin:6px 0;font-size:.8rem}
+.badge.rs-pending,.badge.rs-r_pending{background:#f2b134;color:#1a1200}.badge.rs-approved,.badge.rs-r_approved{background:#5aa9ff;color:#04162b}
+.badge.rs-rejected,.badge.rs-r_rejected{background:var(--danger);color:#fff}.badge.rs-published,.badge.rs-r_published{background:var(--ok);color:var(--primary-text)}
+.extra{margin-top:8px}

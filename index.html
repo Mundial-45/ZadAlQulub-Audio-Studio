@@ -20,9 +20,35 @@
   </div>
 </header>
 
+<nav id="mainNav" class="nav" hidden>
+  <button id="navCatalog" class="tab" data-i18n="nav.texts"></button>
+  <button id="navMy" class="tab" data-i18n="nav.mine"></button>
+  <button id="navAdmin" class="tab" data-i18n="nav.admin" hidden></button>
+  <span id="userChip" class="muted small"></span>
+  <button id="logoutBtn" class="btn" data-i18n="auth.logout"></button>
+</nav>
+
+<main id="loginView" hidden>
+  <form id="loginForm" class="panel narrow">
+    <h2 data-i18n="auth.title"></h2>
+    <label class="field"><span data-i18n="auth.email"></span><input id="loginEmail" type="email" autocomplete="username" required></label>
+    <label class="field"><span data-i18n="auth.password"></span><input id="loginPass" type="password" autocomplete="current-password" required></label>
+    <p id="loginError" class="warn" aria-live="polite"></p>
+    <button class="btn primary wide" type="submit" data-i18n="auth.login"></button>
+    <button id="forgotBtn" class="btn wide" type="button" data-i18n="auth.forgot"></button>
+    <p class="muted small" data-i18n="auth.noSignup"></p>
+  </form>
+</main>
+
+<main id="myView" hidden><div id="myList" class="list"></div></main>
+<main id="adminView" hidden></main>
+
+<dialog id="pwDialog"><form id="pwForm"><h2 data-i18n="auth.setPassword"></h2><label class="field"><span data-i18n="auth.newPass"></span><input id="newPass" type="password" autocomplete="new-password" minlength="8" required></label><p id="pwMsg" class="warn"></p><button class="btn primary" type="submit" data-i18n="auth.savePass"></button></form></dialog>
+
 <dialog id="capsDialog"><h2 data-i18n="caps.title"></h2><ul id="capsList"></ul><p id="capsNote" class="warn"></p><button id="capsClose" class="btn" data-i18n="common.close"></button></dialog>
 
 <main id="catalogView">
+  <p id="localBanner" class="muted small" hidden data-i18n="auth.localMode"></p>
   <nav id="tabs" class="tabs" role="tablist"></nav>
   <div class="toolbar">
     <input id="search" type="search" data-i18n-ph="search.placeholder" placeholder="Buscar…">
@@ -132,11 +158,14 @@
       <button id="mp3Btn" class="btn primary" disabled data-i18n="exp.make"></button>
       <a id="downloadLink" class="btn" hidden download data-i18n="exp.download"></a>
       <button id="saveBtn" class="btn" hidden data-i18n="exp.save"></button>
+      <button id="submitBtn" class="btn primary" hidden data-i18n="exp.submit"></button>
     </div>
+    <label class="check" id="inclRow" hidden><input id="inclOriginal" type="checkbox"><span data-i18n="exp.includeOriginal"></span></label>
+    <p id="submitStatus" class="ok" aria-live="polite"></p>
     <p id="mp3Status" class="muted" aria-live="polite"></p>
     <audio id="mp3Player" controls hidden></audio>
     <p id="saveStatus" class="ok"></p>
-    <p class="muted small" data-i18n="exp.submitSoon"></p>
+    <p id="submitSoon" class="muted small" data-i18n="exp.submitSoon"></p>
   </section>
 </main>
 
