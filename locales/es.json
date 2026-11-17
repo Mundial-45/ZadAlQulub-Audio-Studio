@@ -313,9 +313,6 @@
  "fx.test": "Probar",
  "fx.auto": "Probar automáticamente al cambiar un ajuste",
  "exp.options": "Opciones del MP3",
- "g.pitch": "Cambio de tono (pitch)",
- "p.pitch": "Cambiar el tono de la voz",
- "p.semitones": "Semitonos (+ sube, − baja)",
  "admin.tab.integration": "Integración",
  "int.intro": "Elige qué audios publicados sustituirán a los de ZadALQulub. Nada cambia hasta que copies tú el archivo generado en el repositorio.",
  "int.load": "Cargar audio-overrides.js actual",
@@ -336,5 +333,6 @@
  "int.download": "Descargar de nuevo",
  "int.steps": "Después: copia el archivo a la raíz de ZadALQulub (sustituye al existente), haz commit y push. En Android, cópialo también a assets.",
  "rec.saved2": "Estos ajustes, y los de voz, se guardan en este dispositivo y se usan en las siguientes grabaciones hasta que los cambies.",
- "rec.reset": "Restablecer ajustes del grabador"
+ "rec.reset": "Restablecer ajustes del grabador",
+ "fx.light": "Reverberación muy ligera"
 }

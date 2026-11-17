@@ -32,11 +32,8 @@ export const GROUPS = [
     c('saturation.enabled', 'p.saturation'), r('saturation.drive', 'p.drive', 0, 1, 0.05, '%'), r('saturation.mix', 'p.mix', 0, 1, 0.05, '%'),
     c('chorus.enabled', 'p.chorus'), r('chorus.depth', 'p.depth', 0, 1, 0.05, '%'), r('chorus.rate', 'p.rate', 0.1, 4, 0.1, 'Hz'), r('chorus.mix', 'p.mix', 0, 1, 0.05, '%')
   ] },
-  { id: 'pitch', controls: [
-    c('pitch.enabled', 'p.pitch'), r('pitch.semitones', 'p.semitones', -12, 12, 0.5, 'st')
-  ] },
   { id: 'fx', controls: [
-    s('effect.type', 'p.fxType', ['none', 'warm', 'bright', 'deep', 'radio', 'telephone', 'megaphone', 'room', 'chamber', 'plate', 'hall', 'mosque', 'cave', 'slap', 'echo', 'longecho'], { i18n: 'fx.' }),
+    s('effect.type', 'p.fxType', ['none', 'light', 'warm', 'bright', 'deep', 'radio', 'telephone', 'megaphone', 'room', 'chamber', 'plate', 'hall', 'mosque', 'cave', 'slap', 'echo', 'longecho'], { i18n: 'fx.' }),
     r('effect.mix', 'p.mix', 0, 1, 0.05, '%'), r('effect.tone', 'p.tone', 1500, 16000, 250, 'Hz'), r('effect.size', 'p.size', 0.5, 1.6, 0.1, '×'), r('effect.predelay', 'p.predelay', 0, 0.12, 0.005, 's')
   ] },
   { id: 'output', controls: [
@@ -55,7 +52,6 @@ export function setPath(o, path, v) {
 export const fmt = (ctl, v) => {
   if (ctl.unit === '%') return Math.round(v * 100) + ' %';
   if (ctl.unit === ':1') return Number(v).toFixed(1) + ':1';
-  if (ctl.unit === 'st') return (v > 0 ? '+' : '') + Number(v).toFixed(1) + ' st';
   if (ctl.unit === '×') return Number(v).toFixed(1) + '×';
   return v + ' ' + ctl.unit;
 };

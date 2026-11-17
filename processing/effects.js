@@ -2,6 +2,7 @@
 // tail = segundos extra que hay que renderizar al final para no cortar la reverberación o el eco.
 export const EFFECTS = {
   none:      { tail: 0 },
+  light:     { tail: 0.7 },   // reverberación muy ligera
   warm:      { tail: 0 },     // calidez: realce de graves y suavizado de agudos
   bright:    { tail: 0 },     // brillo: aire y presencia
   deep:      { tail: 0 },     // voz profunda (más cuerpo, menos estridencia)
@@ -34,6 +35,7 @@ function impulse(ctx, seconds, predelay, darkness, seed0 = 12345) {
   return buf;
 }
 const REVERBS = {
+  light:   [0.45, 0.006, 0.55],
   room:    [0.6, 0.008, 0.6],
   chamber: [1.1, 0.012, 0.7],
   plate:   [1.6, 0.004, 0.35],

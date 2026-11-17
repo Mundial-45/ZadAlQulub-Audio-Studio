@@ -1,6 +1,6 @@
 // Worker: normalización LUFS, limitador, mediciones y limpieza (declick, hum, espectral, puerta, de-esser, nivelador).
 import { master, integratedLufs, truePeakDb, samplePeakDb } from './dsp-core.js';
-import { declick, dehum, spectralClean, noiseGate, deess, leveler, trimSilence, pitchShift } from './dsp-extra.js';
+import { declick, dehum, spectralClean, noiseGate, deess, leveler, trimSilence } from './dsp-extra.js';
 self.onmessage = (e) => {
   const { id, op, pcm, sr, params } = e.data;
   try {
@@ -21,7 +21,6 @@ self.onmessage = (e) => {
       if (params.gate && params.gate.enabled) x = noiseGate(x, sr, params.gate);
       if (params.deess && params.deess.enabled) x = deess(x, sr, params.deess);
       if (params.leveler && params.leveler.enabled) x = leveler(x, sr, params.leveler);
-      if (params.pitch && params.pitch.enabled && params.pitch.semitones) x = pitchShift(x, sr, params.pitch.semitones);
       if (params.trim && params.trim.enabled) x = trimSilence(x, sr, { margin: params.trim.margin });
       self.postMessage({ id, ok: true, pcm: x }, [x.buffer]);
     }

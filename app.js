@@ -262,10 +262,12 @@ function resetRecPrefs() {
   for (const id of Object.keys(REC_KEYS)) { const el = $(id); if (el.type === 'checkbox') el.checked = false; else el.value = d[id] != null ? d[id] : el.value; }
   $('deviceSelect').value = ''; $('gainOut').textContent = '1.00×'; if (recorder.state !== 'closed') recorder.setGain(1);
 }
+const VOICE_VER = 2;
 let voiceSaveTimer = null;
-function saveVoicePrefs() { clearTimeout(voiceSaveTimer); voiceSaveTimer = setTimeout(() => { try { lsSet('studio_voice', { profile: $('profileSelect').value, params: controlsToParams() }); } catch (e) {} }, 300); }
+function saveVoicePrefs() { clearTimeout(voiceSaveTimer); voiceSaveTimer = setTimeout(() => { try { lsSet('studio_voice', { ver: VOICE_VER, profile: $('profileSelect').value, params: controlsToParams() }); } catch (e) {} }, 300); }
 function loadVoicePrefs() {
-  const v = lsGet('studio_voice'), name = v && PROFILES[v.profile] ? v.profile : defaultProfile;
+  let v = lsGet('studio_voice'); if (v && v.ver !== VOICE_VER) v = null;   // ajustes guardados con valores por defecto antiguos
+  const name = v && PROFILES[v.profile] ? v.profile : defaultProfile;
   $('profileSelect').value = $('profileSelect2').value = name;
   paramsToControls(v && v.params ? v.params : PROFILES[name]());
 }

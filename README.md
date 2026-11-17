@@ -82,7 +82,9 @@ Ver `vendor/README.md`.
 - Los controles se definen en `processing/controls.js`; el motor está en `processing/dsp-extra.js` (STFT propia, sin dependencias nuevas).
 - **Grabador**: frecuencia de muestreo, filtro de graves en vivo, eco/AGC del navegador (desactivados por defecto), cuenta atrás, inicio automático con voz (con 0,5 s de pre-grabación), parada tras silencio y medición del ruido de la sala.
 - Tipografía idéntica a ZadALQulub (`fonts/`), con botones A−/A+.
-- **Interfaz tipo grabadora de voz**: botón grande de grabar (activa el micrófono solo), pausa y stop; reproductor con play/pausa/stop, alternancia Original / Con efectos y botón *Probar* que procesa y reproduce al instante; los ajustes del grabador y de la voz están en hojas inferiores. Cambio de tono (±12 semitonos) con WSOLA, sin cambiar la duración.
+- **Interfaz tipo grabadora de voz**: botón grande de grabar (activa el micrófono solo), pausa y stop; reproductor con play/pausa/stop, alternancia Original / Con efectos y botón *Probar* que procesa y reproduce al instante; los ajustes del grabador y de la voz están en hojas inferiores.
 - **Integración con ZadALQulub (manual)**: pestaña *Integración* del administrador. Eliges qué audios publicados sustituyen a los originales y se genera `audio-overrides.js` (puedes cargar el actual para añadir o quitar elementos). El archivo se copia a mano a la raíz de ZadALQulub; mientras esté vacío o no exista, la app no cambia. Los audios de elementos con el mismo texto se aplican a todos si se deja marcada la casilla.
 - Las citas ﴿…﴾ y «…» usan KFGQPC Hafs y Scheherazade, igual que ZadALQulub.
 - Los ajustes del grabador y de la voz se guardan en el dispositivo y se reutilizan en las siguientes grabaciones (botón *Restablecer* en los ajustes del grabador).
+
+- **Valores por defecto**: pasa-altos 75 Hz, ecualización vocal natural, compresor 2:1 (ataque 15 ms, liberación 120 ms, rodilla suave), reverberación opcional muy ligera, limitador −1 dBTP, −18 LUFS, MP3 192 kbps CBR mono a 48 kHz.

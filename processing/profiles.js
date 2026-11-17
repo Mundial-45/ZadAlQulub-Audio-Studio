@@ -11,21 +11,21 @@ export const base = () => ({
   gate: { enabled: false, auto: true, threshold: -50, depth: 25, hold: 120, release: 180 },
   deess: { enabled: false, freq: 5500, sensitivity: 0.5, maxReduction: 8 },
   // --- tono ---
-  hpf: { enabled: true, freq: 70 },
+  hpf: { enabled: true, freq: 75 },
   lpf: { enabled: false, freq: 14000 },
-  eq: { enabled: true, bands: [band('lowshelf', 120, 0, 0.7), band('peaking', 280, 0, 1), band('peaking', 3000, 0, 1), band('peaking', 5500, 0, 1), band('highshelf', 10000, 0, 0.7)] },
+  // Ecualización "vocal natural": limpia algo de turbidez y añade presencia y un poco de aire, sin colorear.
+  eq: { enabled: true, bands: [band('lowshelf', 120, 0, 0.7), band('peaking', 280, -1.5, 1), band('peaking', 3000, 1.5, 1), band('peaking', 5500, 0.5, 1), band('highshelf', 10000, 1, 0.7)] },
   // --- dinámica ---
-  comp: { enabled: true, threshold: -26, ratio: 1.8, knee: 12, attack: 0.012, release: 0.25, makeup: 0 },
+  comp: { enabled: true, threshold: -26, ratio: 2, knee: 30, attack: 0.015, release: 0.12, makeup: 0 },   // 2:1, ataque 15 ms, liberación 120 ms, rodilla suave
   leveler: { enabled: false, amount: 6, target: -22, speed: 0.4 },
   // --- embellecedores y efectos ---
   exciter: { enabled: false, amount: 0.3, freq: 4000 },
   saturation: { enabled: false, drive: 0.3, mix: 0.4 },
   chorus: { enabled: false, depth: 0.4, rate: 0.8, mix: 0.3 },
-  effect: { type: 'none', mix: 0.25, tone: 9000, size: 1, predelay: 0 },
-  pitch: { enabled: false, semitones: 0 },
+  effect: { type: 'none', mix: 0.1, tone: 9000, size: 1, predelay: 0 },   // reverberación opcional (apagada por defecto)
   // --- salida ---
   trim: { enabled: false, margin: 0.2 },
-  loudness: { enabled: true, target: -16 },
+  loudness: { enabled: true, target: -18 },
   limiter: { enabled: true, ceiling: -1 },
   gainDb: 0
 });
@@ -41,7 +41,7 @@ const eqSet = (p, low, mud, pres, clar, air) => { const g = p.eq.bands; g[0].gai
 const mk = (f) => () => withDefaults(f(base()));
 
 export const PROFILES = {
-  natural: mk((p) => { p.noise.amount = 0.3; p.hpf.freq = 60; p.comp.ratio = 1.5; p.comp.threshold = -28; return p; }),
+  natural: mk((p) => p),   // los valores por defecto
   clean: mk((p) => { p.noise.amount = 0.6; p.hpf.freq = 80; p.comp.ratio = 2; eqSet(p, -1.5, -1, 1.5, 0, 0); p.gate.enabled = true; p.gate.depth = 14; p.gate.auto = true; return p; }),
   studio: mk((p) => { p.noise.amount = 0.5; p.hpf.freq = 75; p.comp.ratio = 2.5; p.comp.threshold = -28; p.comp.makeup = 1; eqSet(p, -1, -1, 2, 0.5, 1.5); p.deess.enabled = true; p.deess.sensitivity = 0.4; p.leveler.enabled = true; p.leveler.amount = 4; p.exciter.enabled = true; p.exciter.amount = 0.2; return p; }),
   rescue: mk((p) => {    // grabación mala: ruido fuerte, eco de habitación, zumbido
