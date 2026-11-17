@@ -8,6 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,6 +16,8 @@
   <div class="brand"><img src="icons/icon-192.png" alt="" width="36" height="36"><div><h1 data-i18n="app.title">ZadALQulub Audio Studio</h1><small data-i18n="app.subtitle"></small></div></div>
   <div class="top-actions">
     <select id="langSelect" data-i18n-title="ui.language" title="Idioma"></select>
+    <button id="fontMinus" class="icon-btn" title="A−" aria-label="A−">A−</button>
+    <button id="fontPlus" class="icon-btn" title="A+" aria-label="A+">A+</button>
     <button id="themeBtn" class="icon-btn" data-i18n-title="ui.theme" title="Tema">◐</button>
     <button id="capsBtn" class="icon-btn" data-i18n-title="caps.title" title="Compatibilidad">ⓘ</button>
   </div>
@@ -77,6 +80,16 @@
     <label class="check"><input id="nsCheck" type="checkbox"><span data-i18n="rec.ns"></span></label>
     <label class="check"><input id="monitorCheck" type="checkbox"><span data-i18n="rec.monitor"></span></label>
     <p id="monitorWarn" class="warn" hidden data-i18n="rec.monitorWarn"></p>
+    <details class="pgroup recopts"><summary data-i18n="rec.optionsTitle"></summary><div class="grid2">
+      <label class="field"><span data-i18n="rec.sr"></span><select id="srSelect"><option value="48000">48000 Hz</option><option value="44100">44100 Hz</option></select></label>
+      <label class="check"><input id="hpfLiveCheck" type="checkbox"><span data-i18n="rec.hpfLive"></span></label>
+      <label class="check"><input id="ecCheck" type="checkbox"><span data-i18n="rec.echoCancel"></span></label>
+      <label class="check"><input id="agcCheck" type="checkbox"><span data-i18n="rec.agc"></span></label>
+      <label class="check"><input id="countdownCheck" type="checkbox"><span data-i18n="rec.countdown"></span></label>
+      <label class="check"><input id="autoStartCheck" type="checkbox"><span data-i18n="rec.autoStart"></span></label>
+      <label class="check"><input id="autoStopCheck" type="checkbox"><span data-i18n="rec.autoStop"></span></label>
+      <div class="field"><button type="button" id="calibBtn" class="btn" disabled data-i18n="rec.calib"></button><p id="calibOut" class="muted small"></p></div>
+    </div><p class="muted small" data-i18n="rec.reopen"></p></details>
     <div class="meter-label muted" data-i18n="rec.level"></div>
     <canvas id="meter" class="meter" height="26"></canvas>
     <canvas id="liveWave" class="wave small"></canvas>
@@ -121,22 +134,8 @@
 
       <h3 data-i18n="proc.title"></h3>
       <label class="field"><span data-i18n="proc.profile"></span>
-        <select id="profileSelect"><option value="natural" data-i18n="proc.natural"></option><option value="clean" data-i18n="proc.clean"></option><option value="studio" data-i18n="proc.studio"></option></select></label>
-      <div class="grid2" id="procControls">
-        <label class="field"><span><input id="noiseOn" type="checkbox"> <span data-i18n="proc.noise"></span></span><input id="noiseAmt" type="range" min="0" max="1" step="0.05"><output id="noiseOut"></output></label>
-        <label class="field"><span><input id="hpfOn" type="checkbox"> <span data-i18n="proc.hpf"></span></span><input id="hpfFreq" type="range" min="30" max="200" step="5"><output id="hpfOut"></output></label>
-        <label class="field"><span data-i18n="proc.eqLow"></span><input id="eqLow" type="range" min="-6" max="6" step="0.5"><output id="eqLowOut"></output></label>
-        <label class="field"><span data-i18n="proc.eqMid"></span><input id="eqMid" type="range" min="-6" max="6" step="0.5"><output id="eqMidOut"></output></label>
-        <label class="field"><span data-i18n="proc.eqHigh"></span><input id="eqHigh" type="range" min="-6" max="6" step="0.5"><output id="eqHighOut"></output></label>
-        <label class="field"><span><input id="compOn" type="checkbox"> <span data-i18n="proc.comp"></span></span><input id="compThr" type="range" min="-50" max="-6" step="1"><output id="compThrOut"></output></label>
-        <label class="field"><span data-i18n="proc.ratio"></span><input id="compRatio" type="range" min="1" max="4" step="0.1"><output id="compRatioOut"></output></label>
-        <label class="field"><span><input id="normOn" type="checkbox"> <span data-i18n="proc.target"></span></span><input id="lufsTarget" type="range" min="-23" max="-12" step="0.5"><output id="lufsOut"></output></label>
-        <label class="field"><span data-i18n="proc.ceiling"></span><input id="ceiling" type="range" min="-6" max="-0.1" step="0.1"><output id="ceilOut"></output></label>
-        <label class="field"><span data-i18n="fx.title"></span><select id="fxType"><option value="none" data-i18n="fx.none"></option><option value="warm" data-i18n="fx.warm"></option><option value="room" data-i18n="fx.room"></option><option value="hall" data-i18n="fx.hall"></option><option value="echo" data-i18n="fx.echo"></option></select></label>
-        <label class="field"><span data-i18n="fx.mix"></span><input id="fxMix" type="range" min="0" max="1" step="0.05"><output id="fxMixOut"></output></label>
-        <label class="field"><span data-i18n="proc.gain"></span><input id="gainDb" type="range" min="-12" max="12" step="0.5"><output id="gainDbOut"></output></label>
-      </div>
-      <p id="noiseWarn" class="warn" hidden data-i18n="proc.noiseWarn"></p>
+        <select id="profileSelect"></select></label>
+      <div id="procControls"></div>
       <div class="row wrap">
         <button id="procBtn" class="btn primary" data-i18n="proc.run"></button>
         <span class="muted" data-i18n="edit.listen"></span>

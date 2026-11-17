@@ -16,12 +16,12 @@ export class Recorder extends EventTarget {
   get sampleRate() { return this.ctx ? this.ctx.sampleRate : 0; }
   get seconds() { return this.sampleRate ? this.samples / this.sampleRate : 0; }
 
-  async open({ deviceId, noiseSuppression = false, gain = 1 } = {}) {
+  async open({ deviceId, noiseSuppression = false, echoCancellation = false, autoGainControl = false, sampleRate = 48000, hpf = 0, gain = 1 } = {}) {
     await this.close();
-    this.stream = await openMicrophone({ deviceId, noiseSuppression });
+    this.stream = await openMicrophone({ deviceId, noiseSuppression, echoCancellation, autoGainControl, sampleRate });
     this.trackInfo = describeTrack(this.stream);
     let ctx;
-    try { ctx = new AudioContext({ sampleRate: 48000, latencyHint: 'interactive' }); }
+    try { ctx = new AudioContext({ sampleRate, latencyHint: 'interactive' }); }
     catch (e) { ctx = new AudioContext({ latencyHint: 'interactive' }); }
     this.ctx = ctx;
     await ctx.audioWorklet.addModule(WORKLET_URL);
@@ -30,7 +30,9 @@ export class Recorder extends EventTarget {
     this.node = new AudioWorkletNode(ctx, 'pcm-capture', { numberOfInputs: 1, numberOfOutputs: 1, channelCount: 1, channelCountMode: 'explicit' });
     this.mute = ctx.createGain(); this.mute.gain.value = 0;                 // mantiene vivo el worklet sin sonido
     this.monitor = ctx.createGain(); this.monitor.gain.value = 0;           // monitorización (solo con auriculares)
-    this.src.connect(this.gainNode); this.gainNode.connect(this.node);
+    if (hpf > 0) { const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hpf; f.Q.value = 0.707; this.src.connect(f); f.connect(this.gainNode); }
+    else this.src.connect(this.gainNode);
+    this.gainNode.connect(this.node);
     this.node.connect(this.mute); this.mute.connect(ctx.destination);
     this.gainNode.connect(this.monitor); this.monitor.connect(ctx.destination);
     this.node.port.onmessage = (e) => this._onMessage(e.data);
@@ -62,10 +64,10 @@ export class Recorder extends EventTarget {
   setGain(g) { if (this.gainNode) this.gainNode.gain.value = g; }
   setMonitor(on) { if (this.monitor) this.monitor.gain.value = on ? 1 : 0; }
 
-  start() {
+  start(preroll = false) {
     if (this.state !== 'ready') return;
     this.chunks = []; this.samples = 0; this.peakMax = 0; this.clipBlocks = 0;
-    this.node.port.postMessage({ type: 'active', value: true });
+    this.node.port.postMessage({ type: 'active', value: true, preroll: !!preroll });
     this.state = 'recording'; this._emit('state', { state: this.state });
   }
   pause() {

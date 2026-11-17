@@ -23,12 +23,12 @@ export async function listInputDevices() {
 }
 
 // Pide el micrófono sin procesados que alteren la voz (sin AGC ni cancelación de eco).
-export async function openMicrophone({ deviceId, noiseSuppression = false } = {}) {
+export async function openMicrophone({ deviceId, noiseSuppression = false, echoCancellation = false, autoGainControl = false, sampleRate = 48000 } = {}) {
   const audio = {
     channelCount: { ideal: 1 },
-    sampleRate: { ideal: 48000 },
-    echoCancellation: false,
-    autoGainControl: false,
+    sampleRate: { ideal: sampleRate },
+    echoCancellation: !!echoCancellation,
+    autoGainControl: !!autoGainControl,
     noiseSuppression: !!noiseSuppression
   };
   if (deviceId) audio.deviceId = { exact: deviceId };

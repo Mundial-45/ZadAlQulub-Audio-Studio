@@ -2,7 +2,11 @@
 [data-theme=dark]{--bg:#0f1419;--card:#171d25;--text:#e8edf3;--muted:#98a3b2;--line:#2c3541;--track:#1b2027;--wave:#2fbf9b;--accent:#f2b134;--primary:#2fbf9b;--primary-text:#06241c;--danger:#ff6369;--ok:#4cd1a9;--warn:#f2b134;--rec:#ff4d54}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 'Tajawal','Inter',system-ui,-apple-system,sans-serif}
+h1,h2,h3,.brand h1,.panel h2,.panel h3{font-family:'Montserrat','Cairo',system-ui,sans-serif}
+[dir=rtl] h1,[dir=rtl] h2,[dir=rtl] h3,[lang=ar] h1,[lang=ar] h2,[lang=ar] h3{font-family:'Cairo','Montserrat',system-ui,sans-serif}
+.ar .inline-quran{font-family:'KFGQPC Hafs','Scheherazade New',serif;font-weight:400;font-size:1.15em}
+.ar .inline-hadith{font-family:'Scheherazade New','Crimson Pro',serif;font-size:1.08em}
 .top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}.brand h1{font-size:1.05rem;margin:0}.brand small{color:var(--muted);display:block;font-size:.75rem}
 .top-actions{display:flex;gap:6px;align-items:center}
@@ -19,7 +23,7 @@ input[type=search]{flex:1;min-width:0}
 #progressText{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:600}
 .list{display:grid;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-.card .ar,#studioText .ar{font-family:"Amiri","Scheherazade New","Noto Naskh Arabic","Traditional Arabic","Geeza Pro",serif;direction:rtl;text-align:center;font-size:1.55rem;line-height:2.1;white-space:pre-wrap;margin:6px 0}
+.card .ar,#studioText .ar{font-family:'Amiri Quran','Amiri',serif;font-size:var(--app-font-size,18px);font-weight:700;line-height:1.625;letter-spacing:.025em;direction:rtl;text-align:center;white-space:pre-line;margin:6px 0}
 .card .latin{font-style:italic;color:var(--muted);direction:ltr;text-align:left}
 .card .es{direction:ltr;text-align:left;margin-top:4px}
 .card .meta{justify-content:center;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
@@ -51,7 +55,7 @@ dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);co
 dialog li{margin:4px 0}.yes{color:var(--ok);font-weight:700}.no{color:var(--danger);font-weight:700}
 audio{width:100%;margin-top:8px}
 [hidden]{display:none!important}
-@media (max-width:520px){.card .ar{font-size:1.35rem}.brand small{display:none}.top-actions select{max-width:110px}}
+@media (max-width:520px){.brand small{display:none}.top-actions select{max-width:110px}}
 
 .nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 12px;max-width:980px;margin:0 auto}
 .nav .tab{flex:0 0 auto;min-height:44px;padding:8px 14px}.nav #userChip{margin-inline-start:auto}
@@ -63,3 +67,10 @@ code.url{display:block;direction:ltr;word-break:break-all;background:var(--track
 .badge.rs-pending,.badge.rs-r_pending{background:#f2b134;color:#1a1200}.badge.rs-approved,.badge.rs-r_approved{background:#5aa9ff;color:#04162b}
 .badge.rs-rejected,.badge.rs-r_rejected{background:var(--danger);color:#fff}.badge.rs-published,.badge.rs-r_published{background:var(--ok);color:var(--primary-text)}
 .extra{margin-top:8px}
+.pgroup{border:1px solid var(--line);border-radius:12px;margin:10px 0;background:var(--card)}
+.pgroup>summary{cursor:pointer;padding:12px 14px;font-weight:700;min-height:44px;list-style-position:inside}
+.pgroup[open]>summary{border-bottom:1px solid var(--line)}
+.pgroup>.grid2{padding:6px 14px 12px}
+.pgroup .check{font-weight:600;grid-column:1/-1;margin-top:12px}
+.profilebox{grid-column:1/-1}
+@media (max-width:520px){.top{gap:4px;padding-inline:8px}.top-actions{gap:4px;flex-shrink:0}.icon-btn{width:38px;height:38px;font-size:.95rem}.brand h1{font-size:.85rem;line-height:1.15}.brand img{width:30px;height:30px}.top-actions select{max-width:88px;min-height:38px;padding:4px 6px}}

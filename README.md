@@ -71,3 +71,14 @@ tools/       build-catalog.js
 ## Licencias de terceros
 
 Ver `vendor/README.md`.
+
+## Procesado de voz (versión ampliada)
+
+- **Limpieza**: RNNoise (1–3 pasadas), reducción espectral con perfil de ruido tomado de la selección, de-reverb, reducción de respiraciones, puerta de ruido con umbral automático, quita-zumbido 50/60 Hz, quita-clics.
+- **Tono y dinámica**: filtros de graves/agudos, ecualizador de 5 bandas, compresor, nivelador de volumen, de-esser.
+- **Embellecedores**: exciter, saturación cálida, chorus/doblado.
+- **Efectos**: calidez, brillo, voz profunda, radio, teléfono, megáfono, sala, cámara, plate, sala grande, mezquita, cueva, eco corto/medio/largo.
+- **11 perfiles** de partida (natural, voz limpia, estudio, rescate, móvil, suave, radio, mezquita, profunda, brillante, sin tratamiento).
+- Los controles se definen en `processing/controls.js`; el motor está en `processing/dsp-extra.js` (STFT propia, sin dependencias nuevas).
+- **Grabador**: frecuencia de muestreo, filtro de graves en vivo, eco/AGC del navegador (desactivados por defecto), cuenta atrás, inicio automático con voz (con 0,5 s de pre-grabación), parada tras silencio y medición del ruido de la sala.
+- Tipografía idéntica a ZadALQulub (`fonts/`), con botones A−/A+.

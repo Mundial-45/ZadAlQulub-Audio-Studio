@@ -1,10 +1,13 @@
 // Filtro pasa-altos + ecualizador paramétrico de 3 bandas (con límites seguros para la voz árabe).
-export const EQ_LIMITS = { gain: 6, q: [0.4, 4] };
+export const EQ_LIMITS = { gain: 9, q: [0.3, 6] };
 
-export function buildEq(ctx, { hpf, eq }) {
+export function buildEq(ctx, { hpf, lpf, eq }) {
   const nodes = [];
   if (hpf && hpf.enabled) {
     const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hpf.freq; f.Q.value = 0.707; nodes.push(f);
+  }
+  if (lpf && lpf.enabled) {
+    const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = Math.min(lpf.freq, ctx.sampleRate / 2 - 500); f.Q.value = 0.707; nodes.push(f);
   }
   if (eq && eq.enabled) {
     for (const b of eq.bands) {

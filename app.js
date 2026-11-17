@@ -1,5 +1,5 @@
 // ZadALQulub Audio Studio — interfaz principal (catálogo + estudio).
-import { t, setLang, initialLang, LANGS, lang } from './services/i18n.js';
+import { t, applyI18n, setLang, initialLang, LANGS, lang } from './services/i18n.js';
 import { loadCatalog } from './services/content-loader.js';
 import * as store from './services/local-store.js';
 import { checkCapabilities, listInputDevices } from './recording/microphone.js';
@@ -9,7 +9,9 @@ import { LevelMeter } from './recording/audio-monitor.js';
 import { encodeWav, decodeWavBlob } from './recording/wav.js';
 import { WaveformEditor } from './editor/waveform-editor.js';
 import { Previewer } from './editor/preview.js';
-import { PROFILES, defaultProfile } from './processing/profiles.js';
+import { PROFILES, PROFILE_ORDER, defaultProfile, withDefaults } from './processing/profiles.js';
+import { GROUPS, getPath, setPath, fmt as fmtCtl } from './processing/controls.js';
+import { noiseProfileOf } from './processing/dsp-extra.js';
 import { processAudio } from './processing/pipeline.js';
 import { noiseReductionAvailable } from './processing/noise-reduction.js';
 import { exportMp3 } from './processing/mp3-exporter.js';
@@ -138,34 +140,58 @@ async function playCard(id) {
 
 // ------------------------------------------------------------------ estudio
 const val = (id) => parseFloat($(id).value);
+// --- panel de procesado generado desde processing/controls.js
+function buildProcPanel() {
+  const root = $('procControls'); root.textContent = '';
+  const sel = $('profileSelect'); sel.textContent = '';
+  PROFILE_ORDER.forEach((k) => { const o = document.createElement('option'); o.value = k; o.dataset.i18n = 'proc.' + k; sel.appendChild(o); });
+  for (const g of GROUPS) {
+    const det = document.createElement('details'); det.className = 'pgroup'; det.open = !!g.open;
+    const sm = document.createElement('summary'); sm.dataset.i18n = 'g.' + g.id; det.appendChild(sm);
+    const grid = document.createElement('div'); grid.className = 'grid2'; det.appendChild(grid);
+    for (const c of g.controls) {
+      if (c.type === 'profile') {
+        const box = document.createElement('div'); box.className = 'field profilebox';
+        box.innerHTML = '<div class="row wrap"><button type="button" class="btn" id="profCapture" data-i18n="p.profileCapture"></button><button type="button" class="btn" id="profClear" data-i18n="p.profileClear"></button></div><p id="profInfo" class="muted small"></p>';
+        grid.appendChild(box); continue;
+      }
+      const id = 'pc_' + c.path.replace(/\./g, '_');
+      const lab = document.createElement('label'); lab.className = c.type === 'check' ? 'check' : 'field';
+      if (c.type === 'check') { lab.innerHTML = `<input type="checkbox" id="${id}" data-path="${c.path}"><span data-i18n="${c.label}"></span>`; }
+      else if (c.type === 'range') { lab.innerHTML = `<span data-i18n="${c.label}"></span><input type="range" id="${id}" data-path="${c.path}" min="${c.min}" max="${c.max}" step="${c.step}"><output id="${id}_o"></output>`; }
+      else { const opts = c.options.map((v) => `<option value="${v}"${c.i18n ? ` data-i18n="${c.i18n}${v}"` : ''}>${c.i18n ? '' : v}</option>`).join(''); lab.innerHTML = `<span data-i18n="${c.label}"></span><select id="${id}" data-path="${c.path}">${opts}</select>`; }
+      grid.appendChild(lab); c.id = id;
+    }
+    root.appendChild(det);
+  }
+  applyI18n(root); applyI18n(sel);
+}
+function eachControl(fn) { for (const g of GROUPS) for (const c of g.controls) if (c.path) fn(c, $(c.id)); }
 function paramsToControls(p) {
-  $('noiseOn').checked = p.noise.enabled; $('noiseAmt').value = p.noise.amount;
-  $('hpfOn').checked = p.hpf.enabled; $('hpfFreq').value = p.hpf.freq;
-  $('eqLow').value = p.eq.bands[0].gain; $('eqMid').value = p.eq.bands[1].gain; $('eqHigh').value = p.eq.bands[2].gain;
-  $('compOn').checked = p.comp.enabled; $('compThr').value = p.comp.threshold; $('compRatio').value = p.comp.ratio;
-  $('fxType').value = (p.effect && p.effect.type) || 'none'; $('fxMix').value = p.effect ? p.effect.mix : 0.25;
-  $('normOn').checked = p.loudness.enabled; $('lufsTarget').value = p.loudness.target; $('ceiling').value = p.limiter.ceiling; $('gainDb').value = p.gainDb;
+  p = withDefaults(p);
+  eachControl((c, el) => { const v = getPath(p, c.path); if (c.type === 'check') el.checked = !!v; else el.value = v; });
   S.profile = p; refreshOutputs();
 }
 function controlsToParams() {
-  const p = JSON.parse(JSON.stringify(S.profile || PROFILES[defaultProfile]()));
-  p.noise = { enabled: $('noiseOn').checked, amount: val('noiseAmt') };
-  p.hpf = { enabled: $('hpfOn').checked, freq: val('hpfFreq') };
-  p.eq.bands[0].gain = val('eqLow'); p.eq.bands[1].gain = val('eqMid'); p.eq.bands[2].gain = val('eqHigh');
-  p.comp.enabled = $('compOn').checked; p.comp.threshold = val('compThr'); p.comp.ratio = val('compRatio');
-  p.loudness = { enabled: $('normOn').checked, target: val('lufsTarget') };
-  p.limiter = { enabled: true, ceiling: val('ceiling') }; p.gainDb = val('gainDb');
-  p.effect = { type: $('fxType').value, mix: val('fxMix') };
+  const p = withDefaults(S.profile || PROFILES[defaultProfile]());
+  eachControl((c, el) => { setPath(p, c.path, c.type === 'check' ? el.checked : (c.type === 'select' && typeof c.options[0] === 'number' ? parseFloat(el.value) : c.type === 'range' ? parseFloat(el.value) : el.value)); });
   return p;
 }
 function refreshOutputs() {
-  $('noiseOut').textContent = Math.round(val('noiseAmt') * 100) + ' %'; $('hpfOut').textContent = val('hpfFreq') + ' Hz';
-  $('eqLowOut').textContent = val('eqLow') + ' dB'; $('eqMidOut').textContent = val('eqMid') + ' dB'; $('eqHighOut').textContent = val('eqHigh') + ' dB';
-  $('compThrOut').textContent = val('compThr') + ' dB'; $('compRatioOut').textContent = val('compRatio').toFixed(1) + ':1';
-  $('lufsOut').textContent = val('lufsTarget') + ' LUFS'; $('ceilOut').textContent = val('ceiling') + ' dBTP'; $('gainDbOut').textContent = val('gainDb') + ' dB';
-  $('fxMixOut').textContent = Math.round(val('fxMix') * 100) + ' %'; $('fxMix').disabled = $('fxType').value === 'none';
-  $('noiseWarn').hidden = !($('noiseOn').checked && val('noiseAmt') > 0.8);
+  eachControl((c, el) => { if (c.type === 'range') { const o = $(c.id + '_o'); if (o) o.textContent = fmtCtl(c, parseFloat(el.value)); } });
+  const p = S.profile || {}, has = p.spectral && p.spectral.profile;
+  const info = $('profInfo'); if (info) info.textContent = t(has ? 'p.profileOn' : 'p.profileOff');
+  const clr = $('profClear'); if (clr) clr.disabled = !has;
 }
+function captureNoiseProfile() {
+  const sel = editor.selection, info = $('profInfo');
+  if (!sel || (sel.end - sel.start) < 0.5 * editor.sr) { info.textContent = t('p.profileShort'); return; }
+  const prof = noiseProfileOf(editor.pcm.slice(sel.start, sel.end), 1024);
+  if (!prof) { info.textContent = t('p.profileShort'); return; }
+  S.profile = controlsToParams(); S.profile.spectral.profile = prof; S.profile.spectral.profileSr = editor.sr; S.profile.spectral.enabled = true;
+  paramsToControls(S.profile);
+}
+function clearNoiseProfile() { S.profile = controlsToParams(); S.profile.spectral.profile = null; S.profile.spectral.profileSr = 0; paramsToControls(S.profile); }
 
 function openStudio(id) {
   const item = S.catalog.byId.get(id); S.item = item;
@@ -193,11 +219,12 @@ function setRecUi(state) {
   $('recBtn').disabled = state !== 'ready'; $('pauseBtn').disabled = !(state === 'recording' || state === 'paused');
   $('pauseBtn').textContent = t(state === 'paused' ? 'rec.resume' : 'rec.pause'); $('stopBtn').disabled = !(state === 'recording' || state === 'paused');
   $('deviceSelect').hidden = !open || lastDevices.length < 2;
+  $('calibBtn').disabled = state !== 'ready'; if (state !== 'ready') armed = false;
 }
 async function toggleMic() {
   if (recorder.state !== 'closed') { await recorder.close(); setRecUi('closed'); $('recInfo').textContent = ''; return; }
   try {
-    const info = await recorder.open({ deviceId: $('deviceSelect').value || undefined, noiseSuppression: $('nsCheck').checked, gain: val('gainRange') });
+    const info = await recorder.open({ deviceId: $('deviceSelect').value || undefined, noiseSuppression: $('nsCheck').checked, echoCancellation: $('ecCheck').checked, autoGainControl: $('agcCheck').checked, sampleRate: parseInt($('srSelect').value, 10), hpf: $('hpfLiveCheck').checked ? 80 : 0, gain: val('gainRange') });
     recorder.setMonitor($('monitorCheck').checked);
     lastDevices = await listInputDevices();
     const sel = $('deviceSelect'), cur = info.track && info.track.deviceId;
@@ -205,6 +232,39 @@ async function toggleMic() {
     $('recInfo').textContent = t('rec.info', { rate: info.sampleRate, ch: (info.track && info.track.channelCount) || 1 }) + (info.track && info.track.label ? ' · ' + info.track.label : '');
     setRecUi('ready');
   } catch (e) { $('recWarn').textContent = t('rec.denied', { err: e.message || e.name }); setRecUi('closed'); }
+}
+// --- opciones avanzadas del grabador
+let armed = false, silenceFor = 0, calib = null;
+let counting = false;
+async function startRecording() {
+  if (armed) { armed = false; $('recWarn').textContent = ''; return; }
+  if (counting) return;
+  live.clear(); $('recWarn').textContent = '';
+  if ($('countdownCheck').checked) {
+    counting = true;
+    for (const n of [3, 2, 1]) { $('timer').textContent = String(n); await new Promise((r) => setTimeout(r, 1000)); if (recorder.state !== 'ready') { counting = false; return; } }
+    counting = false; $('timer').textContent = fmtTime(0);
+  }
+  if ($('autoStartCheck').checked) { armed = true; $('recWarn').textContent = t('rec.waitVoice'); return; }   // arranca el detector de voz
+  silenceFor = 0; recorder.start();
+}
+function onLevelAuto(d) {
+  if (armed && recorder.state === 'ready' && d.peak > 0.05) { armed = false; silenceFor = 0; $('recWarn').textContent = ''; recorder.start(true); }
+  if (recorder.state === 'recording' && $('autoStopCheck').checked) {
+    silenceFor = d.peak < 0.012 ? silenceFor + 0.04 : 0;
+    if (silenceFor > 4 && recorder.seconds > 1) { silenceFor = 0; $('recWarn').textContent = t('rec.silenceStop'); $('stopBtn').click(); }
+  }
+  if (calib) calib.push(d.rms);
+}
+function calibrateRoom() {
+  if (recorder.state !== 'ready') return;
+  const out = $('calibOut'); out.textContent = t('rec.calibRun'); $('calibBtn').disabled = true; calib = [];
+  setTimeout(() => {
+    const v = calib.filter((x) => x > 0); calib = null; $('calibBtn').disabled = recorder.state !== 'ready';
+    if (!v.length) { out.textContent = ''; return; }
+    const db = Math.round(20 * Math.log10(Math.sqrt(v.reduce((s, x) => s + x * x, 0) / v.length) + 1e-9));
+    out.textContent = t(db <= -55 ? 'rec.calibGood' : db <= -42 ? 'rec.calibOk' : 'rec.calibBad', { db });
+  }, 3000);
 }
 function loadOriginal(pcm, sr, fromDraft) {
   S.original = { pcm, sr }; S.processed = null; S.mp3 = null;
@@ -288,20 +348,21 @@ function bind() {
   $('themeBtn').onclick = () => { const d = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = d; try { localStorage.setItem('studio_theme', d); } catch (e) {} };
   $('capsBtn').onclick = () => { showCaps(); $('capsDialog').showModal(); }; $('capsClose').onclick = () => $('capsDialog').close();
   $('langSelect').onchange = (e) => setLang(e.target.value);
-  document.addEventListener('langchange', () => { if (S.view === 'my') renderMy(); if (S.view === 'admin' && S.profile) renderAdmin($('adminView'), { t, profile: S.profile, catalog: S.catalog, adminState: S.adminState }); if (S.catalog) renderList(); showCaps(); setRecUi(recorder.state); updateEditInfo(); if (S.item && !$('studioView').hidden) $('studioGroup').textContent = lang() === 'ar' ? S.item.groupTitleAr : S.item.groupTitleEs; });
+  document.addEventListener('langchange', () => { refreshOutputs(); if (S.view === 'my') renderMy(); if (S.view === 'admin' && S.profile) renderAdmin($('adminView'), { t, profile: S.profile, catalog: S.catalog, adminState: S.adminState }); if (S.catalog) renderList(); showCaps(); setRecUi(recorder.state); updateEditInfo(); if (S.item && !$('studioView').hidden) $('studioGroup').textContent = lang() === 'ar' ? S.item.groupTitleAr : S.item.groupTitleEs; });
 
   $('micBtn').onclick = toggleMic;
   $('deviceSelect').onchange = async () => { if (recorder.state === 'ready') { await recorder.close(); await toggleMic(); } };
   $('gainRange').oninput = (e) => { recorder.setGain(parseFloat(e.target.value)); $('gainOut').textContent = parseFloat(e.target.value).toFixed(2) + '×'; };
   $('monitorCheck').onchange = (e) => { recorder.setMonitor(e.target.checked); $('monitorWarn').hidden = !e.target.checked; };
-  $('recBtn').onclick = () => { live.clear(); $('recWarn').textContent = ''; recorder.start(); };
+  $('recBtn').onclick = startRecording;
+  $('calibBtn').onclick = calibrateRoom;
   $('pauseBtn').onclick = () => (recorder.state === 'paused' ? recorder.resume() : recorder.pause());
   $('stopBtn').onclick = stopRecording;
   recorder.addEventListener('state', (e) => setRecUi(e.detail.state));
   recorder.addEventListener('time', (e) => { $('timer').textContent = fmtTime(e.detail.seconds); });
   recorder.addEventListener('limit', () => { $('recWarn').textContent = t('rec.limit'); });
   recorder.addEventListener('level', (e) => {
-    const d = e.detail, m = meter.update(d.peak, d.recording);
+    const d = e.detail, m = meter.update(d.peak, d.recording); onLevelAuto(d);
     if (d.recording) live.push(d.peak);
     if (d.recording || m.clipping) $('recWarn').textContent = m.clipping ? t('rec.clip') : m.tooHigh ? t('rec.high') : m.tooLow ? t('rec.low') : '';
   });
@@ -321,7 +382,9 @@ function bind() {
   editor.addEventListener('seek', () => previewer.stop());
 
   $('profileSelect').onchange = (e) => paramsToControls(PROFILES[e.target.value]());
+  buildProcPanel();
   $('procControls').addEventListener('input', refreshOutputs);
+  $('procControls').addEventListener('click', (e) => { if (e.target.id === 'profCapture') captureNoiseProfile(); else if (e.target.id === 'profClear') clearNoiseProfile(); });
   $('procBtn').onclick = runProcessing;
   $('playEditedBtn').onclick = () => { previewer.stop(); play(editor.pcm, editor.sr, 0); };
   $('playProcBtn').onclick = () => { if (S.processed) { previewer.stop(); previewer.play(S.processed.pcm, S.processed.sampleRate, 0); } };
@@ -350,6 +413,9 @@ function bind() {
 }
 
 async function main() {
+  let fs = 18; try { fs = +localStorage.getItem('studio_fs') || 18; } catch (e) {}
+  const setFs = (d) => { fs = Math.min(28, Math.max(14, fs + d)); document.documentElement.style.setProperty('--app-font-size', fs + 'px'); try { localStorage.setItem('studio_fs', fs); } catch (e) {} };
+  setFs(0); $('fontPlus').onclick = () => setFs(2); $('fontMinus').onclick = () => setFs(-2);
   try { const th = localStorage.getItem('studio_theme'); if (th) document.documentElement.dataset.theme = th; else if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark'; } catch (e) {}
   $('langSelect').innerHTML = Object.entries(LANGS).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('');
   const l = initialLang(); $('langSelect').value = l; await setLang(l);
