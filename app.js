@@ -37,9 +37,10 @@ let editor, meter, live, lastDevices = [];
 // ------------------------------------------------------------------ vistas y sesión
 function showView(name) {
   S.view = name;
-  ['login', 'catalog', 'studio', 'my', 'admin'].forEach((v) => { $(v + 'View').hidden = v !== name; });
-  $('mainNav').hidden = !S.user || name === 'studio' || name === 'login';
-  $('navCatalog').setAttribute('aria-selected', name === 'catalog'); $('navMy').setAttribute('aria-selected', name === 'my'); $('navAdmin').setAttribute('aria-selected', name === 'admin');
+  ['login', 'catalog', 'studio', 'my', 'admin', 'profile'].forEach((v) => { $(v + 'View').hidden = v !== name; });
+  const nav = !!S.user && name !== 'login'; $('mainNav').hidden = !nav; document.body.classList.toggle('has-nav', nav);
+  $('backBtn').hidden = name !== 'studio';
+  $('navCatalog').setAttribute('aria-selected', name === 'catalog' || name === 'studio'); $('navMy').setAttribute('aria-selected', name === 'my'); $('navAdmin').setAttribute('aria-selected', name === 'admin'); $('navProfile').setAttribute('aria-selected', name === 'profile');
   window.scrollTo(0, 0);
 }
 async function refreshRemote() {
@@ -50,10 +51,14 @@ async function enterApp(session) {
   S.user = session.user;
   try { S.profile = await getProfile(S.user.id); } catch (e) { $('loginError').textContent = t('auth.error', { err: e.message }); showView('login'); return; }
   if (!S.profile.active) { $('loginError').textContent = t('auth.inactive'); await signOut(); S.user = null; showView('login'); return; }
-  $('userChip').textContent = S.profile.display_name || S.profile.email || '';
   $('navAdmin').hidden = S.profile.role !== 'admin';
   await refreshRemote(); renderList(); showView('catalog');
   if (S.needPw) { S.needPw = false; $('pwMsg').textContent = ''; $('pwDialog').showModal(); }
+}
+function showProfile() {
+  $('userChip').textContent = (S.profile && (S.profile.display_name || S.profile.email)) || t('prof.local');
+  $('userRole').textContent = S.profile ? t('prof.role.' + (S.profile.role === 'admin' ? 'admin' : 'collab')) + (S.profile.email ? ' · ' + S.profile.email : '') : '';
+  $('logoutBtn').hidden = !S.user; $('pwBtn').hidden = !S.user; $('resetPrefsBtn').textContent = t('prof.resetAll'); showView('profile');
 }
 function renderMy() {
   const mine = S.remote ? S.remote.mine : [];
@@ -150,7 +155,7 @@ function buildProcPanel() {
   const sels = [$('profileSelect'), $('profileSelect2')];
   for (const sel of sels) { sel.textContent = ''; PROFILE_ORDER.forEach((k) => { const o = document.createElement('option'); o.value = k; o.dataset.i18n = 'proc.' + k; sel.appendChild(o); }); }
   for (const g of GROUPS) {
-    const det = document.createElement('details'); det.className = 'pgroup'; det.open = !!g.open;
+    const det = document.createElement('details'); det.className = 'pgroup'; det.open = !!g.open; det.dataset.g = g.id;
     const sm = document.createElement('summary'); sm.dataset.i18n = 'g.' + g.id; det.appendChild(sm);
     const grid = document.createElement('div'); grid.className = 'grid2'; det.appendChild(grid);
     for (const c of g.controls) {
@@ -167,6 +172,7 @@ function buildProcPanel() {
       grid.appendChild(lab); c.id = id;
     }
     root.appendChild(det);
+    if (g.id === 'output') { const o = $('mp3Opts'); o.hidden = false; grid.appendChild(o); o.addEventListener('change', refreshOutputs); }
   }
   applyI18n(root); sels.forEach(applyI18n);
 }
@@ -183,6 +189,7 @@ function controlsToParams() {
 }
 function refreshOutputs() {
   eachControl((c, el) => { if (c.type === 'range') { const o = $(c.id + '_o'); if (o) o.textContent = fmtCtl(c, parseFloat(el.value)); } });
+  refreshTileStates();
   const p = S.profile || {}, has = p.spectral && p.spectral.profile;
   const info = $('profInfo'); if (info) info.textContent = t(has ? 'p.profileOn' : 'p.profileOff');
   const clr = $('profClear'); if (clr) clr.disabled = !has;
@@ -203,7 +210,7 @@ function openStudio(id) {
   S.returnView = S.view === 'studio' ? S.returnView : S.view; showView('studio');
   $('studioId').textContent = item.id; $('studioGroup').textContent = lang() === 'ar' ? item.groupTitleAr : item.groupTitleEs;
   $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${fmtAr(item.text)}</div>`;
-  $('editBody').hidden = true; $('editEmpty').hidden = false; $('mp3Btn').disabled = true;
+  $('editBody').hidden = true; $('editEmpty').hidden = false; $('mp3Btn').disabled = true; $('discardBtn').disabled = true; $('origInfo').textContent = '—';
   $('downloadLink').hidden = true; $('saveBtn').hidden = true; $('submitBtn').hidden = true; $('inclRow').hidden = true; $('submitStatus').textContent = ''; $('mp3Player').hidden = true; $('mp3Status').textContent = ''; $('saveStatus').textContent = ''; $('recSaved').textContent = ''; $('procStats').textContent = ''; $('procStatus').textContent = '';
   live.clear(); $('timer').textContent = '00:00.0'; $('recWarn').textContent = '';
   // borrador previo
@@ -220,11 +227,10 @@ function setRecUi(state) {
   const open = state !== 'closed';
   $('micBtn').textContent = t(open ? 'rec.disable' : 'rec.enable');
   $('recBtn').disabled = !(state === 'closed' || state === 'ready'); $('pauseBtn').disabled = !(state === 'recording' || state === 'paused');
-  $('pauseBtn').textContent = state === 'paused' ? '▶' : '⏸'; $('pauseBtn').title = t(state === 'paused' ? 'rec.resume' : 'rec.pause');
-  $('recBtn').title = t('rec.start'); $('stopBtn').title = t('rec.stop'); $('stopBtn2').title = t('rec.stop');
+  $('pauseBtn').querySelector('use').setAttribute('href', state === 'paused' ? '#i-play' : '#i-pause'); $('pauseLbl').textContent = t(state === 'paused' ? 'rec.resume' : 'rec.pause');
+  $('recLbl').textContent = t('rec.start'); $('stopLbl').textContent = t('rec.stop'); $('stopBtn2').title = t('rec.stop');
   $('stopBtn').disabled = !(state === 'recording' || state === 'paused');
   $('recPanel').classList.toggle('is-rec', state === 'recording'); $('recPanel').classList.toggle('is-paused', state === 'paused');
-  $('deviceSelect').hidden = !open || lastDevices.length < 2;
   $('calibBtn').disabled = state !== 'ready'; if (state !== 'ready') armed = false;
 }
 async function toggleMic() {
@@ -254,13 +260,13 @@ function saveRecPrefs() {
 function loadRecPrefs() {
   recPrefs = lsGet('studio_rec') || {};
   for (const [id, key] of Object.entries(REC_KEYS)) { const el = $(id), v = recPrefs[key]; if (v == null) continue; if (el.type === 'checkbox') el.checked = !!v; else el.value = v; }
-  $('gainOut').textContent = parseFloat($('gainRange').value).toFixed(2) + '×';
+  $('gainOut').textContent = parseFloat($('gainRange').value).toFixed(2) + '×'; syncChips();
 }
 function resetRecPrefs() {
   try { localStorage.removeItem('studio_rec'); } catch (e) {}
   recPrefs = {}; const d = { gainRange: '1', srSelect: '48000' };
   for (const id of Object.keys(REC_KEYS)) { const el = $(id); if (el.type === 'checkbox') el.checked = false; else el.value = d[id] != null ? d[id] : el.value; }
-  $('deviceSelect').value = ''; $('gainOut').textContent = '1.00×'; if (recorder.state !== 'closed') recorder.setGain(1);
+  $('deviceSelect').value = ''; $('gainOut').textContent = '1.00×'; syncChips(); if (recorder.state !== 'closed') recorder.setGain(1);
 }
 const VOICE_VER = 2;
 let voiceSaveTimer = null;
@@ -272,6 +278,13 @@ function loadVoicePrefs() {
   paramsToControls(v && v.params ? v.params : PROFILES[name]());
 }
 
+// --- chips de opciones rápidas del grabador
+function syncChips() {
+  document.querySelectorAll('.chip[data-chk]').forEach((c) => {
+    const on = $(c.dataset.chk).checked; c.setAttribute('aria-pressed', on);
+    c.querySelector('.cv').textContent = on ? (c.dataset.chk === 'countdownCheck' ? '3 s' : t('common.on')) : t('common.off');
+  });
+}
 // --- opciones avanzadas del grabador
 let armed = false, silenceFor = 0, calib = null;
 let counting = false;
@@ -308,7 +321,7 @@ function calibrateRoom() {
 }
 function loadOriginal(pcm, sr, fromDraft) {
   S.original = { pcm, sr }; S.processed = null; S.mp3 = null;
-  $('editBody').hidden = false; $('editEmpty').hidden = true;
+  $('editBody').hidden = false; $('editEmpty').hidden = true; $('discardBtn').disabled = false; $('origInfo').textContent = (sr / 1000) + ' kHz · 16 bits · Mono';
   editor.setAudio(pcm.slice(), sr); updateEditInfo();
   $('mp3Btn').disabled = false; $('procStats').textContent = ''; S.fxKey = null; setPlayUi(false); updateTime(0);
   $('recSaved').textContent = fromDraft ? '' : t('rec.saved');
@@ -355,6 +368,23 @@ async function testVoice() {
 let autoTimer = null;
 function scheduleAutoTest() { if (!$('autoTestCheck').checked || !S.original || !$('voiceDialog').open) return; clearTimeout(autoTimer); autoTimer = setTimeout(testVoice, 800); }
 
+function openVoiceGroup(g, title) {
+  document.querySelectorAll('#procControls details').forEach((d) => { d.hidden = !!g && d.dataset.g !== g; d.open = g ? true : d.dataset.g === 'clean'; });
+  $('voiceTitle').textContent = g ? title : t('vc.title'); $('showAllBtn').hidden = !g; $('voiceDialog').open || $('voiceDialog').showModal();
+}
+// Estado de cada bloque: "Automático" si coincide con el perfil elegido, "Personalizado" si lo has tocado.
+function refreshTileStates() {
+  const ref = withDefaults(PROFILES[$('profileSelect').value || defaultProfile]()), cur = S.profile ? withDefaults(S.profile) : ref; let all = true;
+  const same = (x, y) => (typeof x === 'number' && typeof y === 'number' ? Math.abs(x - y) < 1e-6 : x === y);
+  for (const g of GROUPS) {
+    let ok = g.controls.every((c) => !c.path || same(getPath(cur, c.path), getPath(ref, c.path)));
+    if (g.id === 'output') ok = ok && $('kbps').value === '192' && $('mp3Rate').value === '48000';
+    if (g.id === 'clean' && cur.spectral && cur.spectral.profile) ok = false;
+    const em = document.querySelector(`[data-state-for="${g.id}"]`); if (em) { em.textContent = t(ok ? 'vc.auto' : 'vc.custom'); em.className = 'state' + (ok ? '' : ' custom'); }
+    if (!ok) all = false;
+  }
+  $('autoBadge').textContent = t(all ? 'vc.auto' : 'vc.custom'); $('autoBadge').className = 'pill' + (all ? '' : ' custom');
+}
 async function runProcessing() {
   if (!S.original) return null;
   const params = controlsToParams(); $('testBtn').disabled = $('testBtn2').disabled = true; $('mp3Btn').disabled = true;
@@ -460,12 +490,16 @@ function bind() {
   loadRecPrefs(); loadVoicePrefs();
   Object.keys(REC_KEYS).forEach((id) => { $(id).addEventListener('change', saveRecPrefs); $(id).addEventListener('input', saveRecPrefs); });
   $('recReset').onclick = () => { resetRecPrefs(); };
+  document.querySelectorAll('.chip[data-chk]').forEach((c) => { c.onclick = () => { const el = $(c.dataset.chk); el.checked = !el.checked; el.dispatchEvent(new Event('change', { bubbles: true })); syncChips(); }; });
   $('procControls').addEventListener('input', () => { refreshOutputs(); scheduleAutoTest(); saveVoicePrefs(); });
   $('procControls').addEventListener('click', (e) => { if (e.target.id === 'profCapture') captureNoiseProfile(); else if (e.target.id === 'profClear') clearNoiseProfile(); });
   // hojas inferiores (ajustes del grabador y de la voz)
   const sheet = (dlg, openBtns, closeBtn) => { openBtns.forEach((b) => { b.onclick = () => dlg.showModal(); }); $(closeBtn).onclick = () => dlg.close(); dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); }); };
-  sheet($('recDialog'), [$('recSettingsBtn')], 'recDialogClose'); sheet($('voiceDialog'), [$('voiceBtn'), $('voiceBtn2')], 'voiceDialogClose');
-  $('textToggle').onclick = () => $('studioText').classList.toggle('open');
+  sheet($('recDialog'), [$('recSettingsBtn')], 'recDialogClose'); $('voiceDialogClose').onclick = () => $('voiceDialog').close(); $('voiceDialog').addEventListener('click', (e) => { if (e.target === $('voiceDialog')) $('voiceDialog').close(); });
+  document.querySelectorAll('.tile[data-group]').forEach((b) => { b.onclick = () => openVoiceGroup(b.dataset.group, b.querySelector('b').textContent); });
+  $('showAllBtn').onclick = () => openVoiceGroup(null);
+  $('tileEdit').onclick = () => { const tr = $('toolsRow'), on = tr.hidden; tr.hidden = !on; $('editHint').hidden = !on; $('editPanel').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+  $('textToggle').onclick = () => $('paper').classList.toggle('open');
   $('mp3Btn').onclick = makeMp3; $('saveBtn').onclick = saveDone; $('submitBtn').onclick = submitForReview;
 
   $('loginForm').onsubmit = async (e) => {
@@ -480,9 +514,13 @@ function bind() {
     if (v.length < 8) { $('pwMsg').className = 'warn'; $('pwMsg').textContent = t('auth.passShort'); return; }
     try { await setPassword(v); $('newPass').value = ''; $('pwDialog').close(); history.replaceState(null, '', location.pathname + location.search); } catch (err) { $('pwMsg').className = 'warn'; $('pwMsg').textContent = err.message; }
   };
-  $('navCatalog').onclick = () => { renderList(); showView('catalog'); };
-  $('navMy').onclick = async () => { await refreshRemote(); renderMy(); showView('my'); };
-  $('navAdmin').onclick = () => { showView('admin'); renderAdmin($('adminView'), { t, profile: S.profile, catalog: S.catalog, adminState: S.adminState }).then(() => {}); };
+  const leave = async () => { if (S.view === 'studio') { previewer.stop(); await recorder.close(); setRecUi('closed'); S.statuses = await store.loadStatuses(); } };
+  $('navCatalog').onclick = async () => { await leave(); await refreshRemote(); renderList(); showView('catalog'); };
+  $('navMy').onclick = async () => { await leave(); await refreshRemote(); renderMy(); showView('my'); };
+  $('navProfile').onclick = async () => { await leave(); showProfile(); }; $('profileBtn').onclick = $('navProfile').onclick;
+  $('pwBtn').onclick = () => { $('pwMsg').textContent = ''; $('pwDialog').showModal(); };
+  $('resetPrefsBtn').onclick = () => { resetRecPrefs(); lsSet('studio_voice', null); try { localStorage.removeItem('studio_fs'); } catch (e) {} paramsToControls(PROFILES[defaultProfile]()); $('profileSelect').value = $('profileSelect2').value = defaultProfile; syncChips(); $('resetPrefsBtn').textContent = '✓ ' + t('prof.resetAll'); };
+  $('navAdmin').onclick = async () => { await leave(); showView('admin'); renderAdmin($('adminView'), { t, profile: S.profile, catalog: S.catalog, adminState: S.adminState }).then(() => {}); };
   $('myList').onclick = async (e) => {
     const b = e.target.closest('button[data-act]'); if (!b) return; const card = b.closest('.card');
     if (b.dataset.act === 'again') { openStudio(card.dataset.content); return; }
@@ -491,7 +529,7 @@ function bind() {
 }
 
 async function main() {
-  let fs = 18; try { fs = +localStorage.getItem('studio_fs') || 18; } catch (e) {}
+  let fs = 22; try { fs = +localStorage.getItem('studio_fs') || 22; } catch (e) {}
   const setFs = (d) => { fs = Math.min(28, Math.max(14, fs + d)); document.documentElement.style.setProperty('--app-font-size', fs + 'px'); try { localStorage.setItem('studio_fs', fs); } catch (e) {} };
   setFs(0); $('fontPlus').onclick = () => setFs(2); $('fontMinus').onclick = () => setFs(-2);
   try { const th = localStorage.getItem('studio_theme'); if (th) document.documentElement.dataset.theme = th; else if (matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.dataset.theme = 'dark'; } catch (e) {}

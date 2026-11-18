@@ -3,33 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f1419">
+<meta name="theme-color" content="#0c4535">
 <title>ZadALQulub Audio Studio</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 13l2 2 4-4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01"/></symbol>
+<symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></symbol>
+<symbol id="i-bars" viewBox="0 0 24 24"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></symbol>
+<symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h4M12 12h8"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/><circle cx="10" cy="12" r="2"/></symbol>
+<symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
+<symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 7.5L20 18M8.5 16.5L20 6"/></symbol>
+<symbol id="i-export" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+<symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></symbol>
+<symbol id="i-eq" viewBox="0 0 24 24"><path d="M6 4v16M12 4v16M18 4v16"/><circle cx="6" cy="9" r="2"/><circle cx="12" cy="15" r="2"/><circle cx="18" cy="8" r="2"/></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></symbol>
+<symbol id="i-room" viewBox="0 0 24 24"><path d="M4 20V10l8-6 8 6v10zM10 20v-6h4v6"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6zM14 3v4h4"/></symbol>
+<symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3M4 15h3v5H4zM17 15h3v5h-3z"/></symbol>
+</defs></svg>
 <header class="top">
-  <div class="brand"><img src="icons/icon-192.png" alt="" width="36" height="36"><div><h1 data-i18n="app.title">ZadALQulub Audio Studio</h1><small data-i18n="app.subtitle"></small></div></div>
+  <button id="backBtn" class="hbtn" type="button" hidden data-i18n-title="studio.back" title="Volver"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg></button>
+  <div class="brand"><img src="icons/icon-192.png" alt="" width="40" height="40"><div><h1 data-i18n="app.title">ZadALQulub Audio Studio</h1><small data-i18n="app.subtitle"></small></div></div>
   <div class="top-actions">
     <select id="langSelect" data-i18n-title="ui.language" title="Idioma"></select>
-    <button id="fontMinus" class="icon-btn" title="A−" aria-label="A−">A−</button>
-    <button id="fontPlus" class="icon-btn" title="A+" aria-label="A+">A+</button>
-    <button id="themeBtn" class="icon-btn" data-i18n-title="ui.theme" title="Tema">◐</button>
-    <button id="capsBtn" class="icon-btn" data-i18n-title="caps.title" title="Compatibilidad">ⓘ</button>
+    <button id="profileBtn" class="hbtn" type="button" data-i18n-title="nav.profile" title="Perfil"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></button>
+    <button id="capsBtn" class="hbtn" type="button" data-i18n-title="caps.title" title="Compatibilidad"><svg class="ic" aria-hidden="true"><use href="#i-help"/></svg></button>
   </div>
 </header>
 
 <nav id="mainNav" class="nav" hidden>
-  <button id="navCatalog" class="tab" data-i18n="nav.texts"></button>
-  <button id="navMy" class="tab" data-i18n="nav.mine"></button>
-  <button id="navAdmin" class="tab" data-i18n="nav.admin" hidden></button>
-  <span id="userChip" class="muted small"></span>
-  <button id="logoutBtn" class="btn" data-i18n="auth.logout"></button>
+  <button id="navCatalog" class="tab" type="button"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg><span data-i18n="nav.texts"></span></button>
+  <button id="navMy" class="tab" type="button"><svg class="ic" aria-hidden="true"><use href="#i-folder"/></svg><span data-i18n="nav.mine"></span></button>
+  <button id="navAdmin" class="tab" type="button" hidden><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span data-i18n="nav.admin"></span></button>
+  <button id="navProfile" class="tab" type="button"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span data-i18n="nav.profile"></span></button>
 </nav>
+
+<main id="profileView" hidden>
+  <section class="panel">
+    <h2 data-i18n="nav.profile"></h2>
+    <div class="who"><svg class="ic big" aria-hidden="true"><use href="#i-user"/></svg><div><strong id="userChip"></strong><div id="userRole" class="muted small"></div></div></div>
+    <div class="row wrap">
+      <button id="themeBtn" class="btn" type="button"><span class="ic-t">◐</span> <span data-i18n="ui.theme"></span></button>
+      <button id="pwBtn" class="btn" type="button" data-i18n="auth.changePass"></button>
+    </div>
+    <div class="row wrap"><button id="resetPrefsBtn" class="btn" type="button" data-i18n="prof.resetAll"></button></div>
+    <button id="logoutBtn" class="btn danger wide" type="button" data-i18n="auth.logout"></button>
+  </section>
+</main>
 
 <main id="loginView" hidden>
   <form id="loginForm" class="panel narrow">
@@ -64,24 +102,34 @@
 
 <main id="studioView" hidden>
   <div class="studio-head">
-    <button id="backBtn" class="btn small" data-i18n="studio.back"></button>
-    <div class="grow"><span id="studioId" class="badge"></span> <span id="studioGroup" class="muted small"></span></div>
-    <button id="textToggle" class="icon-btn" type="button" data-i18n-title="studio.textToggle" title="Texto">⤢</button>
+    <span id="studioId" class="badge"></span> <span id="studioGroup" class="muted small grow"></span>
   </div>
-  <article id="studioText" class="card textcard"></article>
+  <article class="paper" id="paper">
+    <div class="paper-tools"><button id="fontMinus" class="mini" type="button" title="A−" aria-label="A−">A−</button><button id="fontPlus" class="mini" type="button" title="A+" aria-label="A+">A+</button><button id="textToggle" class="mini" type="button" data-i18n-title="studio.textToggle" title="Texto">⤢</button></div>
+    <div id="studioText" class="textcard"></div>
+  </article>
 
   <section class="recorder" id="recPanel">
-    <canvas id="liveWave" class="wave small"></canvas>
-    <div id="timer" class="timer">00:00.0</div>
-    <canvas id="meter" class="meter" height="14"></canvas>
-    <p id="recWarn" class="warn" aria-live="polite"></p>
-    <div class="rec-controls">
-      <button id="recSettingsBtn" class="round" type="button" data-i18n-title="studio.recSettings" title="Ajustes">⚙</button>
-      <button id="stopBtn" class="round" type="button" disabled>⏹</button>
-      <button id="recBtn" class="round rec-main" type="button"><span class="dot"></span></button>
-      <button id="pauseBtn" class="round" type="button" disabled>⏸</button>
-      <button id="voiceBtn2" class="round" type="button" data-i18n-title="studio.voiceSettings" title="Voz">🎛</button>
+    <div class="rec-top">
+      <label class="rt-mic"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-mic"/></svg><span class="rt-col"><small data-i18n="rec.micLabel"></small><select id="deviceSelect" data-i18n-title="rec.device" title="Micrófono"><option value="" data-i18n="rec.deviceDefault"></option></select></span></label>
+      <div class="rt-level"><small data-i18n="rec.level"></small><canvas id="meter" class="meter" height="14"></canvas></div>
+      <label class="rt-sr"><small data-i18n="rec.sr"></small><select id="srSelect"><option value="48000">48 kHz</option><option value="44100">44,1 kHz</option></select></label>
     </div>
+    <div id="timer" class="timer">00:00.0</div>
+    <canvas id="liveWave" class="wave small"></canvas>
+    <p id="recWarn" class="warn" aria-live="polite"></p>
+    <div class="chips">
+      <button type="button" class="chip" data-chk="countdownCheck"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg><span><small data-i18n="rec.countdownShort"></small><b class="cv"></b></span></button>
+      <button type="button" class="chip" data-chk="autoStartCheck"><svg class="ic" aria-hidden="true"><use href="#i-bars"/></svg><span><small data-i18n="rec.autoStartShort"></small><b class="cv"></b></span></button>
+      <button type="button" class="chip" data-chk="autoStopCheck"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg><span><small data-i18n="rec.autoStopShort"></small><b class="cv"></b></span></button>
+    </div>
+    <div class="rec-controls">
+      <button id="pauseBtn" class="rbtn" type="button" disabled><span class="rb-ic"><svg class="ic" aria-hidden="true"><use href="#i-pause"/></svg></span><small id="pauseLbl"></small></button>
+      <button id="recBtn" class="rbtn rec-main" type="button"><span class="rb-ic"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></span><small id="recLbl"></small></button>
+      <button id="stopBtn" class="rbtn" type="button" disabled><span class="rb-ic"><svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg></span><small id="stopLbl"></small></button>
+      <button id="discardBtn" class="rbtn flat" type="button"><span class="rb-ic"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></span><small data-i18n="rec.discardShort"></small></button>
+    </div>
+    <button id="recSettingsBtn" class="linkbtn" type="button"><svg class="ic sm" aria-hidden="true"><use href="#i-gear"/></svg> <span data-i18n="studio.recSettings"></span></button>
     <p id="recInfo" class="muted small"></p>
     <p id="recSaved" class="ok"></p>
   </section>
@@ -94,18 +142,8 @@
         <button id="playBtn" class="round play" type="button" data-i18n-title="edit.play" title="Reproducir">▶</button>
         <button id="stopPlayBtn" class="round" type="button" data-i18n-title="edit.stop" title="Parar">⏹</button>
         <span id="playTime" class="ptime">00:00 / 00:00</span>
-        <div class="seg" role="radiogroup" aria-label="A/B">
-          <label><input type="radio" name="abMode" value="orig" checked><span data-i18n="ab.orig"></span></label>
-          <label><input type="radio" name="abMode" value="fx"><span data-i18n="ab.fx"></span></label>
-        </div>
       </div>
-      <div class="voicebar">
-        <select id="profileSelect"></select>
-        <button id="testBtn" class="btn primary small" type="button">▶ <span data-i18n="fx.test"></span></button>
-        <button id="voiceBtn" class="btn small" type="button">🎛 <span data-i18n="studio.voiceSettings"></span></button>
-      </div>
-      <p id="procStatus" class="muted small" aria-live="polite"></p>
-      <div class="tools" role="toolbar">
+      <div class="tools" id="toolsRow" role="toolbar" hidden>
         <button id="trimBtn" class="tool" type="button" data-i18n-title="edit.trim" title="Recortar">✂</button>
         <button id="deleteBtn" class="tool" type="button" data-i18n-title="edit.delete" title="Eliminar">🗑</button>
         <button id="silenceBtn" class="tool" type="button" data-i18n-title="edit.silence" title="Silenciar">🔇</button>
@@ -117,46 +155,65 @@
         <button id="zoomInBtn" class="tool" type="button" data-i18n-title="edit.zoomIn" title="Acercar">＋</button>
         <button id="zoomOutBtn" class="tool" type="button" data-i18n-title="edit.zoomOut" title="Alejar">－</button>
         <button id="fitBtn" class="tool" type="button" data-i18n-title="edit.fit" title="Ver todo">⤢</button>
-        <button id="discardBtn" class="tool danger" type="button" data-i18n-title="rec.discard" title="Descartar">✕</button>
       </div>
-      <p class="muted small" data-i18n="edit.hint"></p>
+      <p class="muted small" id="editHint" hidden data-i18n="edit.hint"></p>
       <label class="field"><span data-i18n="edit.volume"></span><input id="volRange" type="range" min="0" max="1" step="0.05" value="1"></label>
       <div id="editInfo" class="muted small"></div>
-      <p id="procStats" class="stats"></p>
+    </div>
+  </section>
+
+  <section class="vcard" id="voiceCard">
+    <div class="vc-head"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-gear"/></svg><h2 data-i18n="vc.title"></h2><span id="autoBadge" class="pill"></span></div>
+    <label class="vc-profile"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-user"/></svg><span data-i18n="vc.profile"></span><select id="profileSelect"></select></label>
+    <div class="tiles">
+      <button type="button" class="tile" data-group="clean"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-bars"/></svg><span class="tile-t"><b data-i18n="g.cleanShort"></b><em class="state" data-state-for="clean"></em></span><span class="chev">›</span></button><button type="button" class="tile" data-group="filters"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-filter"/></svg><span class="tile-t"><b data-i18n="g.filtersShort"></b><em class="state" data-state-for="filters"></em></span><span class="chev">›</span></button><button type="button" class="tile" data-group="eq"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-eq"/></svg><span class="tile-t"><b data-i18n="g.eqShort"></b><em class="state" data-state-for="eq"></em></span><span class="chev">›</span></button>
+      <button type="button" class="tile" data-group="dynamics"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-pulse"/></svg><span class="tile-t"><b data-i18n="g.dynamicsShort"></b><em class="state" data-state-for="dynamics"></em></span><span class="chev">›</span></button><button type="button" class="tile" data-group="beauty"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-sparkle"/></svg><span class="tile-t"><b data-i18n="g.beautyShort"></b><em class="state" data-state-for="beauty"></em></span><span class="chev">›</span></button><button type="button" class="tile" data-group="fx"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-room"/></svg><span class="tile-t"><b data-i18n="g.fxShort"></b><em class="state" data-state-for="fx"></em></span><span class="chev">›</span></button>
+      <button type="button" class="tile" id="tileEdit"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-scissors"/></svg><span class="tile-t"><b data-i18n="vc.edit"></b><em data-i18n="vc.editSub"></em></span><span class="chev">›</span></button>
+      <button type="button" class="tile" data-group="output"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-export"/></svg><span class="tile-t"><b data-i18n="g.outputShort"></b><em class="state" data-state-for="output"></em></span><span class="chev">›</span></button>
+    </div>
+    <div class="vc-info">
+      <div class="vc-orig"><svg class="ic tile-ic" aria-hidden="true"><use href="#i-file"/></svg><span><b data-i18n="vc.orig"></b><small id="origInfo"></small></span></div>
+      <div class="vc-ab"><span class="vc-ab-h"><svg class="ic sm" aria-hidden="true"><use href="#i-headphones"/></svg> <b data-i18n="vc.compare"></b></span>
+        <div class="seg" role="radiogroup" aria-label="A/B"><label><input type="radio" name="abMode" value="orig"><span data-i18n="ab.orig"></span></label><label><input type="radio" name="abMode" value="fx" checked><span data-i18n="ab.proc"></span></label></div></div>
+    </div>
+    <p id="procStatus" class="muted small" aria-live="polite"></p>
+    <p id="procStats" class="stats"></p>
+    <div class="vc-actions">
+      <button id="testBtn" class="btn primary" type="button"><svg class="ic sm" aria-hidden="true"><use href="#i-gear"/></svg> <span data-i18n="vc.process"></span></button>
+      <button id="mp3Btn" class="btn outline" type="button" disabled><svg class="ic sm" aria-hidden="true"><use href="#i-export"/></svg> <span data-i18n="vc.export"></span></button>
     </div>
   </section>
 
   <section class="panel" id="expPanel">
     <div class="row wrap">
-      <button id="mp3Btn" class="btn primary" disabled data-i18n="exp.make"></button>
       <a id="downloadLink" class="btn" hidden download data-i18n="exp.download"></a>
       <button id="saveBtn" class="btn" hidden data-i18n="exp.save"></button>
       <button id="submitBtn" class="btn primary" hidden data-i18n="exp.submit"></button>
     </div>
-    <details class="small"><summary data-i18n="exp.options"></summary><div class="grid2">
-      <label class="field"><span data-i18n="exp.bitrate"></span><select id="kbps"><option>128</option><option>160</option><option selected>192</option><option>256</option></select></label>
-      <label class="field"><span data-i18n="exp.rate"></span><select id="mp3Rate"><option value="44100">44,1 kHz</option><option value="48000" selected>48 kHz</option></select></label>
-    </div></details>
     <label class="check" id="inclRow" hidden><input id="inclOriginal" type="checkbox"><span data-i18n="exp.includeOriginal"></span></label>
     <p id="submitStatus" class="ok" aria-live="polite"></p>
     <p id="mp3Status" class="muted" aria-live="polite"></p>
     <audio id="mp3Player" controls hidden></audio>
     <p id="saveStatus" class="ok"></p>
     <p id="submitSoon" class="muted small" data-i18n="exp.submitSoon"></p>
+    <div id="mp3Opts" hidden>
+      <label class="field"><span data-i18n="exp.bitrate"></span><select id="kbps"><option>128</option><option>160</option><option selected>192</option><option>256</option></select></label>
+      <label class="field"><span data-i18n="exp.rate"></span><select id="mp3Rate"><option value="44100">44,1 kHz</option><option value="48000" selected>48 kHz</option></select></label>
+      <p class="muted small" data-i18n="vc.mp3Note"></p>
+    </div>
   </section>
 </main>
 
 <dialog id="recDialog" class="sheet">
   <div class="sheet-head"><strong data-i18n="studio.recSettings"></strong><button id="recDialogClose" class="icon-btn" type="button">✕</button></div>
   <div class="sheet-body">
-    <div class="row"><button id="micBtn" class="btn primary" data-i18n="rec.enable"></button><select id="deviceSelect" data-i18n-title="rec.device" title="Micrófono" hidden></select></div>
+    <div class="row"><button id="micBtn" class="btn primary" data-i18n="rec.enable"></button></div>
     <label class="field"><span data-i18n="rec.gain"></span><input id="gainRange" type="range" min="0.25" max="3" step="0.05" value="1"><output id="gainOut">1.0×</output></label>
     <label class="check"><input id="nsCheck" type="checkbox"><span data-i18n="rec.ns"></span></label>
     <label class="check"><input id="monitorCheck" type="checkbox"><span data-i18n="rec.monitor"></span></label>
     <p id="monitorWarn" class="warn" hidden data-i18n="rec.monitorWarn"></p>
     <h3 data-i18n="rec.optionsTitle"></h3>
     <div class="grid2">
-      <label class="field"><span data-i18n="rec.sr"></span><select id="srSelect"><option value="48000">48000 Hz</option><option value="44100">44100 Hz</option></select></label>
       <label class="check"><input id="hpfLiveCheck" type="checkbox"><span data-i18n="rec.hpfLive"></span></label>
       <label class="check"><input id="ecCheck" type="checkbox"><span data-i18n="rec.echoCancel"></span></label>
       <label class="check"><input id="agcCheck" type="checkbox"><span data-i18n="rec.agc"></span></label>
@@ -173,11 +230,13 @@
 
 <dialog id="voiceDialog" class="sheet">
   <div class="sheet-head">
-    <select id="profileSelect2"></select>
+    <strong id="voiceTitle" class="grow"></strong>
+    <select id="profileSelect2" hidden></select>
     <button id="testBtn2" class="btn primary small" type="button">▶ <span data-i18n="fx.test"></span></button>
     <button id="stopBtn2" class="icon-btn" type="button">⏹</button>
     <button id="voiceDialogClose" class="icon-btn" type="button">✕</button>
   </div>
+  <button id="showAllBtn" class="linkbtn sheet-all" type="button" data-i18n="vc.showAll"></button>
   <label class="check sheet-auto"><input id="autoTestCheck" type="checkbox" checked><span data-i18n="fx.auto"></span></label>
   <div class="sheet-body"><div id="procControls"></div></div>
 </dialog>
