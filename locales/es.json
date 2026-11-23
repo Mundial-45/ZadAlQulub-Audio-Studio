@@ -367,5 +367,13 @@
  "g.dynamicsShort": "Dinámica y volumen",
  "g.beautyShort": "Embellecedores de voz",
  "g.fxShort": "Ambiente y efectos",
- "g.outputShort": "Salida y formato"
+ "g.outputShort": "Salida y formato",
+ "upload.btn": "Subir audio (MP3 / Opus…)",
+ "upload.hint": "También puedes subir un archivo MP3, Opus, OGG, M4A o WAV ya grabado para este texto.",
+ "upload.asIs": "Usar el MP3 tal cual (sin efectos)",
+ "upload.decoding": "Leyendo el archivo…",
+ "upload.fail": "No se pudo leer ese archivo: {err}",
+ "upload.tooBig": "El archivo supera los 50 MB.",
+ "upload.notAudio": "Ese archivo no es un audio compatible.",
+ "upload.done": "Archivo cargado: {name} · {dur} s. Puedes recortarlo y procesarlo, o usar el MP3 tal cual."
 }

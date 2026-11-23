@@ -367,5 +367,13 @@
  "g.dynamicsShort": "الديناميكية والمستوى",
  "g.beautyShort": "محسّنات الصوت",
  "g.fxShort": "المكان والمؤثرات",
- "g.outputShort": "الخرج والصيغة"
+ "g.outputShort": "الخرج والصيغة",
+ "upload.btn": "رفع ملف صوتي (MP3 / Opus…)",
+ "upload.hint": "يمكنك أيضًا رفع ملف MP3 أو Opus أو OGG أو M4A أو WAV مسجَّل مسبقًا لهذا النص.",
+ "upload.asIs": "استخدام ملف MP3 كما هو (بلا مؤثرات)",
+ "upload.decoding": "جارٍ قراءة الملف…",
+ "upload.fail": "تعذّرت قراءة هذا الملف: {err}",
+ "upload.tooBig": "حجم الملف يتجاوز 50 ميغابايت.",
+ "upload.notAudio": "هذا الملف ليس صوتًا مدعومًا.",
+ "upload.done": "تم تحميل الملف: {name} · {dur} ث. يمكنك قصّه ومعالجته أو استخدام MP3 كما هو."
 }

@@ -65,7 +65,7 @@ function renderMy() {
   $('myList').innerHTML = mine.length ? mine.map((r) => `<article class="card" data-id="${r.id}" data-content="${r.content_id}" data-path="${esc(r.file_path)}">
     <div class="meta"><span class="badge">${esc(r.content_id)}</span><span class="badge rs-r_${r.status}">${esc(t('status.r_' + r.status))}</span><span class="muted small">v${r.version} · ${esc(new Date(r.submitted_at).toLocaleString())}</span></div>
     ${r.rejection_reason ? `<p class="warn">${esc(t('admin.reason'))}: ${esc(r.rejection_reason)}</p>` : ''}
-    <div class="actions"><button class="btn" data-act="play">▶ ${esc(t('card.play'))}</button><button class="btn primary" data-act="again">${esc(t('my.rerecord'))}</button></div><div class="extra"></div></article>`).join('') : `<p class="muted">${esc(t('my.empty'))}</p>`;
+    <div class="actions"><button class="btn" data-act="play">▶ ${esc(t('card.play'))}</button>${S.catalog.byId.has(r.content_id) ? `<button class="btn primary" data-act="again">${esc(t('my.rerecord'))}</button>` : ''}</div><div class="extra"></div></article>`).join('') : `<p class="muted">${esc(t('my.empty'))}</p>`;
 }
 
 // ------------------------------------------------------------------ catálogo
@@ -206,7 +206,8 @@ function clearNoiseProfile() { S.profile = controlsToParams(); S.profile.spectra
 
 function openStudio(id) {
   const item = S.catalog.byId.get(id); S.item = item;
-  S.original = null; S.originalWav = null; S.processed = null; S.mp3 = null;
+  S.original = null; S.originalWav = null; S.processed = null; S.mp3 = null; S.uploaded = null;
+  $('asIsBtn').hidden = true; $('uploadInfo').className = 'muted small'; $('uploadInfo').textContent = t('upload.hint');
   S.returnView = S.view === 'studio' ? S.returnView : S.view; showView('studio');
   $('studioId').textContent = item.id; $('studioGroup').textContent = lang() === 'ar' ? item.groupTitleAr : item.groupTitleEs;
   $('studioText').innerHTML = `<div class="ar" lang="ar" dir="rtl">${fmtAr(item.text)}</div>`;
@@ -320,6 +321,7 @@ function calibrateRoom() {
   }, 3000);
 }
 function loadOriginal(pcm, sr, fromDraft) {
+  $('asIsBtn').hidden = true; S.uploaded = null;
   S.original = { pcm, sr }; S.processed = null; S.mp3 = null;
   $('editBody').hidden = false; $('editEmpty').hidden = true; $('discardBtn').disabled = false; $('origInfo').textContent = (sr / 1000) + ' kHz · 16 bits · Mono';
   editor.setAudio(pcm.slice(), sr); updateEditInfo();
@@ -401,21 +403,51 @@ async function runProcessing() {
   } catch (e) { $('procStatus').textContent = String(e.message || e); return null; }
   finally { $('testBtn').disabled = $('testBtn2').disabled = false; $('mp3Btn').disabled = false; updateEditInfo(); }
 }
+function presentMp3(out, dur) {
+  S.mp3 = out; S.mp3Dur = dur; const url = URL.createObjectURL(out.blob);
+  $('mp3Player').src = url; $('mp3Player').hidden = false; $('downloadLink').href = url; $('downloadLink').download = S.item.id + '.mp3'; $('downloadLink').hidden = false; $('saveBtn').hidden = false; $('submitBtn').hidden = !S.user; $('inclRow').hidden = !S.user;
+  $('mp3Status').textContent = t('exp.ready', { dur: dur.toFixed(1), kb: Math.round(out.blob.size / 1024), kbps: out.kbps });
+}
+// Subir un audio ya hecho (MP3, Opus, OGG, M4A, WAV): se decodifica en el navegador y entra en el mismo flujo que una grabación.
+async function loadUploadedFile(file) {
+  if (!S.item || !file) return;
+  const info = $('uploadInfo'); info.className = 'muted small';
+  if (file.size > 50 * 1024 * 1024) { info.className = 'warn small'; info.textContent = t('upload.tooBig'); return; }
+  info.textContent = t('upload.decoding');
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext, ac = new AC();
+    let buf; try { buf = await ac.decodeAudioData(await file.arrayBuffer()); } finally { try { ac.close(); } catch (e) {} }
+    if (!buf || !buf.length) throw new Error(t('upload.notAudio'));
+    const pcm = new Float32Array(buf.length), chs = buf.numberOfChannels;
+    for (let c = 0; c < chs; c++) { const d = buf.getChannelData(c); for (let i = 0; i < pcm.length; i++) pcm[i] += d[i] / chs; }
+    const wav = encodeWav(pcm, buf.sampleRate); S.originalWav = wav;
+    await store.putRecord({ id: S.item.id, original: wav, sampleRate: buf.sampleRate, duration: buf.duration, createdAt: Date.now() });
+    loadOriginal(pcm, buf.sampleRate, false);
+    S.uploaded = { file, duration: buf.duration };
+    $('asIsBtn').hidden = !(/mpeg|mp3/i.test(file.type) || /\.mp3$/i.test(file.name));
+    S.statuses = await store.loadStatuses();
+    info.textContent = t('upload.done', { name: file.name, dur: buf.duration.toFixed(1) });
+  } catch (e) { info.className = 'warn small'; info.textContent = t('upload.fail', { err: e && e.message ? e.message : e }); }
+}
+function useUploadedAsIs() {
+  if (!S.uploaded) return;
+  const f = S.uploaded.file, dur = S.uploaded.duration;
+  previewer.stop(); setPlayUi(false);
+  presentMp3({ blob: f, sampleRate: S.original ? S.original.sr : 0, kbps: Math.round(f.size * 8 / dur / 1000) }, dur);
+}
 async function makeMp3() {
   let r = fxFresh() ? S.processed : await runProcessing();
   if (!r) return;
   $('mp3Btn').disabled = true; $('mp3Status').textContent = t('exp.working');
   try {
     const out = await exportMp3(r.pcm, r.sampleRate, { kbps: parseInt($('kbps').value, 10), rate: parseInt($('mp3Rate').value, 10) }, (p) => { $('mp3Status').textContent = t('exp.working') + ' ' + Math.round(p * 100) + '%'; });
-    S.mp3 = out; const url = URL.createObjectURL(out.blob), dur = r.pcm.length / r.sampleRate;
-    $('mp3Player').src = url; $('mp3Player').hidden = false; $('downloadLink').href = url; $('downloadLink').download = S.item.id + '.mp3'; $('downloadLink').hidden = false; $('saveBtn').hidden = false; $('submitBtn').hidden = !S.user; $('inclRow').hidden = !S.user;
-    $('mp3Status').textContent = t('exp.ready', { dur: dur.toFixed(1), kb: Math.round(out.blob.size / 1024), kbps: out.kbps });
+    presentMp3(out, r.pcm.length / r.sampleRate);
   } catch (e) { $('mp3Status').textContent = String(e.message || e); }
   finally { $('mp3Btn').disabled = false; }
 }
 async function saveDone() {
   if (!S.mp3) return;
-  const n = await store.saveDone(S.item, { original: S.originalWav, mp3: S.mp3.blob, params: S.params, stats: S.processed && S.processed.stats, duration: editor.duration, sampleRate: S.mp3.sampleRate });
+  const n = await store.saveDone(S.item, { original: S.originalWav, mp3: S.mp3.blob, params: S.params, stats: S.processed && S.processed.stats, duration: S.mp3Dur || editor.duration, sampleRate: S.mp3.sampleRate });
   $('saveStatus').textContent = n ? t('exp.saved', { n }) : t('exp.savedNone');
   S.statuses = await store.loadStatuses();
 }
@@ -425,7 +457,7 @@ async function submitForReview() {
   $('submitBtn').disabled = true; $('submitStatus').className = 'muted';
   try {
     await saveDone();
-    const r = await submitRecording({ userId: S.user.id, item: S.item, mp3Blob: S.mp3.blob, originalBlob: $('inclOriginal').checked ? S.originalWav : null, duration: editor.duration,
+    const r = await submitRecording({ userId: S.user.id, item: S.item, mp3Blob: S.mp3.blob, originalBlob: $('inclOriginal').checked ? S.originalWav : null, duration: S.mp3Dur || editor.duration,
       onProgress: (step) => { $('submitStatus').textContent = t('exp.submitting', { step }); } });
     $('submitStatus').className = 'ok'; $('submitStatus').textContent = t('exp.submitted', { v: r.version });
     await refreshRemote();
@@ -446,6 +478,9 @@ function bind() {
   $('moreBtn').onclick = () => { S.shown += PAGE; renderList(); };
   $('list').onclick = (e) => { const b = e.target.closest('button[data-act]'); if (!b) return; const id = b.closest('.card').dataset.id; b.dataset.act === 'record' ? openStudio(id) : playCard(id); };
   $('backBtn').onclick = closeStudio;
+  $('uploadBtn').onclick = () => $('uploadInput').click();
+  $('uploadInput').onchange = async (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; await loadUploadedFile(f); };
+  $('asIsBtn').onclick = useUploadedAsIs;
   $('themeBtn').onclick = () => { const d = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = d; try { localStorage.setItem('studio_theme', d); } catch (e) {} };
   $('capsBtn').onclick = () => { showCaps(); $('capsDialog').showModal(); }; $('capsClose').onclick = () => $('capsDialog').close();
   $('langSelect').onchange = (e) => setLang(e.target.value);

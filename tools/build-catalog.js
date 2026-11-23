@@ -37,5 +37,12 @@ items.forEach((i) => { const k = norm(i.text); if (!byText.has(k)) byText.set(k,
 let n = 0;
 items.forEach((i) => { const g = byText.get(norm(i.text)); i.sameTextAs = g.filter((x) => x !== i.id); if (i.sameTextAs.length) n++; });
 fs.mkdirSync(path.dirname(out), { recursive: true });
-fs.writeFileSync(out, JSON.stringify({ generatedFrom: 'ZadALQulub', sections: SECTIONS.map(({ key, titleAr, titleEs, titleFr }) => ({ key, titleAr, titleEs, titleFr })), items }, null, 1));
+let sourceCommit = '';
+try { sourceCommit = require('child_process').execSync('git -C ' + JSON.stringify(root) + ' rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); } catch (e) {}
+// Compara con el catálogo anterior para avisar de elementos nuevos o retirados (los retirados conservan sus grabaciones en Supabase).
+try {
+  const prev = JSON.parse(fs.readFileSync(out, 'utf8')), had = new Set(prev.items.map((i) => i.id)), has = new Set(items.map((i) => i.id));
+  console.log('nuevos:', items.filter((i) => !had.has(i.id)).length, '| retirados:', prev.items.filter((i) => !has.has(i.id)).length);
+} catch (e) {}
+fs.writeFileSync(out, JSON.stringify({ generatedFrom: 'ZadALQulub', sourceCommit, sections: SECTIONS.map(({ key, titleAr, titleEs, titleFr }) => ({ key, titleAr, titleEs, titleFr })), items }, null, 1));
 console.log('items:', items.length, '| con texto repetido:', n, '| problemas:', problems.length); problems.forEach((p) => console.log(' -', p));

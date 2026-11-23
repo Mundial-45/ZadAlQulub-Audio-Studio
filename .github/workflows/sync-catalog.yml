@@ -1,0 +1,36 @@
+name: Sincronizar catálogo con ZadALQulub
+# Copia de solo lectura de los textos de ZadALQulub → data/catalog.json y supabase/seed.sql.
+# Se ejecuta cada 6 horas y a mano (Actions → Sincronizar catálogo → Run workflow).
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Mundial-45/ZadALQulub
+          path: _src
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Regenerar catálogo y seed
+        run: |
+          node tools/build-catalog.js _src
+          node tools/build-seed.js
+          rm -rf _src
+      - name: Subir cambios si los hay
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/catalog.json supabase/seed.sql
+          if git diff --cached --quiet; then echo "Sin cambios"; exit 0; fi
+          sed -i "s/studio-v\([0-9]*\)/studio-v$(date +%s)/" service-worker.js && git add service-worker.js
+          git commit -m "Catálogo: sincronizado con ZadALQulub"
+          git push

@@ -116,3 +116,6 @@ dialog.sheet::backdrop{background:rgba(0,0,0,.45)}
 .sheet-auto{padding:6px 14px;margin:0;border-bottom:1px solid var(--line)}
 .sheet-body{overflow:auto;padding:8px 14px 18px;-webkit-overflow-scrolling:touch}
 @media (min-width:700px){dialog.sheet{margin:auto;border-radius:18px}}
+
+.upload-row { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: .6rem 0 .2rem; }
+.upload-row .btn { min-height: 44px; }

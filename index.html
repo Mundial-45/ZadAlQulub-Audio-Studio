@@ -27,6 +27,7 @@
 <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke-width="3"/></symbol>
 <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></symbol>
 <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
 <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M4 12h4M12 12h8"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/><circle cx="10" cy="12" r="2"/></symbol>
 <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></symbol>
@@ -129,6 +130,12 @@
       <button id="stopBtn" class="rbtn" type="button" disabled><span class="rb-ic"><svg class="ic" aria-hidden="true"><use href="#i-stop"/></svg></span><small id="stopLbl"></small></button>
       <button id="discardBtn" class="rbtn flat" type="button"><span class="rb-ic"><svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg></span><small data-i18n="rec.discardShort"></small></button>
     </div>
+    <div class="upload-row">
+      <input id="uploadInput" type="file" accept="audio/*,.mp3,.opus,.ogg,.oga,.webm,.m4a,.wav" hidden>
+      <button id="uploadBtn" class="btn" type="button"><svg class="ic sm" aria-hidden="true"><use href="#i-upload"/></svg> <span data-i18n="upload.btn"></span></button>
+      <button id="asIsBtn" class="btn primary" type="button" hidden data-i18n="upload.asIs"></button>
+    </div>
+    <p id="uploadInfo" class="muted small" aria-live="polite" data-i18n="upload.hint"></p>
     <button id="recSettingsBtn" class="linkbtn" type="button"><svg class="ic sm" aria-hidden="true"><use href="#i-gear"/></svg> <span data-i18n="studio.recSettings"></span></button>
     <p id="recInfo" class="muted small"></p>
     <p id="recSaved" class="ok"></p>
