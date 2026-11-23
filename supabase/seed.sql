@@ -124,7 +124,6 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('azkar_119', 'azkar', 119, 'salat', 'azkar_119'),
 ('azkar_120', 'azkar', 120, 'salat', 'azkar_120'),
 ('azkar_121', 'azkar', 121, 'salat', 'azkar_121'),
-('azkar_122', 'azkar', 122, 'salat', 'azkar_122'),
 ('azkar_123', 'azkar', 123, 'salat', 'azkar_123'),
 ('azkar_124', 'azkar', 124, 'salat', 'azkar_124'),
 ('azkar_125', 'azkar', 125, 'salat', 'azkar_125'),
@@ -133,12 +132,10 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('azkar_128', 'azkar', 128, 'salat', 'azkar_128'),
 ('azkar_129', 'azkar', 129, 'salat', 'azkar_129'),
 ('azkar_130', 'azkar', 130, 'salat', 'azkar_130'),
-('azkar_131', 'azkar', 131, 'salat', 'azkar_131'),
 ('azkar_132', 'azkar', 132, 'azkar_bada_salah', 'azkar_132'),
 ('azkar_133', 'azkar', 133, 'azkar_bada_salah', 'azkar_133'),
 ('azkar_134', 'azkar', 134, 'azkar_bada_salah', 'azkar_134'),
 ('azkar_135', 'azkar', 135, 'azkar_bada_salah', 'azkar_135'),
-('azkar_136', 'azkar', 136, 'azkar_bada_salah', 'azkar_136'),
 ('azkar_137', 'azkar', 137, 'azkar_bada_salah', 'azkar_137'),
 ('azkar_138', 'azkar', 138, 'azkar_bada_salah', 'azkar_52'),
 ('azkar_139', 'azkar', 139, 'azkar_bada_salah', 'azkar_139'),
@@ -204,12 +201,12 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('azkar_197', 'azkar', 197, 'rih_matar', 'azkar_197'),
 ('azkar_198', 'azkar', 198, 'rih_matar', 'azkar_198'),
 ('azkar_199', 'azkar', 199, 'rih_matar', 'azkar_199'),
-('azkar_200', 'azkar', 200, 'rih_matar', 'azkar_200')
-on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
-insert into public.content_items (id, category, item_number, group_id, same_text_group) values
+('azkar_200', 'azkar', 200, 'rih_matar', 'azkar_200'),
 ('azkar_201', 'azkar', 201, 'rih_matar', 'azkar_201'),
 ('azkar_202', 'azkar', 202, 'rih_matar', 'azkar_202'),
-('azkar_203', 'azkar', 203, 'rih_matar', 'azkar_203'),
+('azkar_203', 'azkar', 203, 'rih_matar', 'azkar_203')
+on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
+insert into public.content_items (id, category, item_number, group_id, same_text_group) values
 ('azkar_204', 'azkar', 204, 'rih_matar', 'azkar_204'),
 ('azkar_205', 'azkar', 205, 'rih_matar', 'azkar_205'),
 ('azkar_206', 'azkar', 206, 'taam_siyam', 'azkar_206'),
@@ -221,9 +218,7 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('azkar_212', 'azkar', 212, 'taam_siyam', 'azkar_212'),
 ('azkar_213', 'azkar', 213, 'taam_siyam', 'azkar_213'),
 ('azkar_214', 'azkar', 214, 'taam_siyam', 'azkar_214'),
-('azkar_215', 'azkar', 215, 'taam_siyam', 'azkar_215'),
 ('azkar_216', 'azkar', 216, 'taam_siyam', 'azkar_216'),
-('azkar_217', 'azkar', 217, 'taam_siyam', 'azkar_217'),
 ('azkar_218', 'azkar', 218, 'utas', 'azkar_218'),
 ('azkar_219', 'azkar', 219, 'utas', 'azkar_219'),
 ('azkar_220', 'azkar', 220, 'zawaj', 'azkar_220'),
@@ -353,7 +348,7 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('adya_47', 'adya', 47, 'adya_nabawiya', 'azkar_96'),
 ('adya_48', 'adya', 48, 'adya_nabawiya', 'azkar_113'),
 ('adya_49', 'adya', 49, 'adya_nabawiya', 'adya_49'),
-('adya_50', 'adya', 50, 'adya_nabawiya', 'adya_50'),
+('adya_50', 'adya', 50, 'adya_nabawiya', 'azkar_85'),
 ('adya_51', 'adya', 51, 'adya_nabawiya', 'adya_51'),
 ('adya_52', 'adya', 52, 'adya_nabawiya', 'azkar_128'),
 ('adya_53', 'adya', 53, 'adya_nabawiya', 'azkar_12'),
@@ -406,14 +401,14 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('adya_100', 'adya', 100, 'adya_anbiya', 'adya_25'),
 ('adya_101', 'adya', 101, 'adya_anbiya', 'adya_20'),
 ('adya_102', 'adya', 102, 'adya_anbiya', 'adya_23'),
-('adya_103', 'adya', 103, 'adya_anbiya', 'adya_103')
-on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
-insert into public.content_items (id, category, item_number, group_id, same_text_group) values
+('adya_103', 'adya', 103, 'adya_anbiya', 'adya_103'),
 ('adya_104', 'adya', 104, 'adya_anbiya', 'adya_28'),
 ('adya_105', 'adya', 105, 'adya_rizq', 'adya_105'),
 ('adya_106', 'adya', 106, 'adya_rizq', 'adya_106'),
 ('adya_107', 'adya', 107, 'adya_rizq', 'adya_107'),
-('adya_108', 'adya', 108, 'adya_rizq', 'adya_108'),
+('adya_108', 'adya', 108, 'adya_rizq', 'adya_108')
+on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
+insert into public.content_items (id, category, item_number, group_id, same_text_group) values
 ('adya_109', 'adya', 109, 'adya_rizq', 'adya_38'),
 ('adya_110', 'adya', 110, 'adya_rizq', 'azkar_170'),
 ('adya_111', 'adya', 111, 'adya_rizq', 'adya_111'),
@@ -608,14 +603,14 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('adya_300', 'adya', 300, 'adya_qunut', 'adya_300'),
 ('adya_301', 'adya', 301, 'adya_qunut', 'adya_301'),
 ('adya_302', 'adya', 302, 'adya_qunut', 'adya_302'),
-('adya_303', 'adya', 303, 'adya_qunut', 'adya_303')
-on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
-insert into public.content_items (id, category, item_number, group_id, same_text_group) values
+('adya_303', 'adya', 303, 'adya_qunut', 'adya_303'),
 ('adya_304', 'adya', 304, 'adya_qunut', 'adya_304'),
 ('adya_305', 'adya', 305, 'adya_qunut', 'adya_305'),
 ('adya_306', 'adya', 306, 'adya_qunut', 'adya_306'),
 ('adya_307', 'adya', 307, 'adya_qunut', 'adya_307'),
-('adya_308', 'adya', 308, 'adya_qunut', 'adya_308'),
+('adya_308', 'adya', 308, 'adya_qunut', 'adya_308')
+on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
+insert into public.content_items (id, category, item_number, group_id, same_text_group) values
 ('adya_309', 'adya', 309, 'adya_qunut', 'adya_309'),
 ('adya_310', 'adya', 310, 'adya_qunut', 'adya_310'),
 ('adya_311', 'adya', 311, 'adya_qunut', 'adya_311'),
@@ -810,14 +805,14 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('munajat_90', 'munajat', 90, 'amor', 'munajat_90'),
 ('munajat_91', 'munajat', 91, 'amor', 'munajat_91'),
 ('munajat_92', 'munajat', 92, 'amor', 'munajat_92'),
-('munajat_93', 'munajat', 93, 'amor', 'munajat_93')
-on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
-insert into public.content_items (id, category, item_number, group_id, same_text_group) values
+('munajat_93', 'munajat', 93, 'amor', 'munajat_93'),
 ('munajat_94', 'munajat', 94, 'amor', 'munajat_94'),
 ('munajat_95', 'munajat', 95, 'amor', 'munajat_95'),
 ('munajat_96', 'munajat', 96, 'amor', 'munajat_96'),
 ('munajat_97', 'munajat', 97, 'esperanza', 'munajat_97'),
-('munajat_98', 'munajat', 98, 'esperanza', 'munajat_98'),
+('munajat_98', 'munajat', 98, 'esperanza', 'munajat_98')
+on conflict (id) do update set group_id = excluded.group_id, same_text_group = excluded.same_text_group;
+insert into public.content_items (id, category, item_number, group_id, same_text_group) values
 ('munajat_99', 'munajat', 99, 'esperanza', 'munajat_99'),
 ('munajat_100', 'munajat', 100, 'esperanza', 'munajat_100'),
 ('munajat_101', 'munajat', 101, 'esperanza', 'munajat_101'),
