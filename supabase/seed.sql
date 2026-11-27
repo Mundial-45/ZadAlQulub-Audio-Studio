@@ -355,7 +355,7 @@ insert into public.content_items (id, category, item_number, group_id, same_text
 ('adya_382', 'adya', 382, 'adya_hamd_shukr', 'adya_382'),
 ('adya_383', 'adya', 383, 'adya_hamd_shukr', 'adya_383'),
 ('adya_384', 'adya', 384, 'adya_hamd_shukr', 'adya_384'),
-('adya_385', 'adya', 385, 'adya_hamd_shukr', 'adya_385'),
+('adya_385', 'adya', 385, 'adya_hamd_shukr', 'adya_58'),
 ('adya_386', 'adya', 386, 'adya_hamd_shukr', 'adya_386'),
 ('adya_387', 'adya', 387, 'adya_hamd_shukr', 'adya_387'),
 ('adya_388', 'adya', 388, 'adya_hamd_shukr', 'adya_388'),
